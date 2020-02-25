@@ -42,10 +42,17 @@ Chaincode
 ---------
 
 Chaincode is software defining an asset or assets, and the transaction instructions for
+<<<<<<< HEAD
 modifying the asset(s); in other words, it's the business logic.  Chaincode enforces the rules for reading
 or altering key-value pairs or other state database information. Chaincode functions execute against
 the ledger's current state database and are initiated through a transaction proposal. Chaincode execution
 results in a set of key-value writes (write set) that can be submitted to the network and applied to
+=======
+modifying the asset(s).  In other words, it's the business logic.  Chaincode enforces the rules for reading
+or altering key value pairs or other state database information. Chaincode functions execute against
+the ledger's current state database and are initiated through a transaction proposal. Chaincode execution
+results in a set of key value writes (write set) that can be submitted to the network and applied to
+>>>>>>> release-1.0
 the ledger on all peers.
 
 .. _Ledger-Features:

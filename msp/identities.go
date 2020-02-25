@@ -52,10 +52,15 @@ type identity struct {
 	validationErr error
 }
 
+<<<<<<< HEAD
 func newIdentity(cert *x509.Certificate, pk bccsp.Key, msp *bccspmsp) (Identity, error) {
 	if mspIdentityLogger.IsEnabledFor(zapcore.DebugLevel) {
 		mspIdentityLogger.Debugf("Creating identity instance for cert %s", certToPEM(cert))
 	}
+=======
+func newIdentity(id *IdentityIdentifier, cert *x509.Certificate, pk bccsp.Key, msp *bccspmsp) (Identity, error) {
+	mspIdentityLogger.Debugf("Creating identity instance for ID %s", certToPEM(cert))
+>>>>>>> release-1.0
 
 	// Sanitize first the certificate
 	cert, err := msp.sanitizeCert(cert)

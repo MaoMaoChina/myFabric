@@ -48,9 +48,19 @@ func TestBlockFileScanSmallTxOnly(t *testing.T) {
 	assert.Equal(t, len(blocks), numBlocks)
 	assert.Equal(t, fileSize, endOffsetLastBlock)
 
+<<<<<<< HEAD
 	expectedLastBlockBytes, _, err := serializeBlock(blocks[len(blocks)-1])
 	assert.NoError(t, err)
 	assert.Equal(t, expectedLastBlockBytes, lastBlockBytes)
+=======
+	lastBlockBytes, endOffsetLastBlock, numBlocks, err := scanForLastCompleteBlock(env.provider.conf.getLedgerBlockDir(ledgerid), 0, 0)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, numBlocks, len(blocks))
+	testutil.AssertEquals(t, endOffsetLastBlock, fileSize)
+
+	expectedLastBlockBytes, _, err := serializeBlock(blocks[len(blocks)-1])
+	testutil.AssertEquals(t, lastBlockBytes, expectedLastBlockBytes)
+>>>>>>> release-1.0
 }
 
 func TestBlockFileScanSmallTxLastTxIncomplete(t *testing.T) {
@@ -80,7 +90,16 @@ func TestBlockFileScanSmallTxLastTxIncomplete(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(blocks)-1, numBlocks)
 
+<<<<<<< HEAD
 	expectedLastBlockBytes, _, err := serializeBlock(blocks[len(blocks)-2])
 	assert.NoError(t, err)
 	assert.Equal(t, expectedLastBlockBytes, lastBlockBytes)
+=======
+	lastBlockBytes, _, numBlocks, err := scanForLastCompleteBlock(env.provider.conf.getLedgerBlockDir(ledgerid), 0, 0)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, numBlocks, len(blocks)-1)
+
+	expectedLastBlockBytes, _, err := serializeBlock(blocks[len(blocks)-2])
+	testutil.AssertEquals(t, lastBlockBytes, expectedLastBlockBytes)
+>>>>>>> release-1.0
 }

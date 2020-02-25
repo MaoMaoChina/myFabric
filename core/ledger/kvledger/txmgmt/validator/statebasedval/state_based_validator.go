@@ -182,6 +182,13 @@ func (v *Validator) validateKVRead(ns string, kvRead *kvrwset.KVRead, updates *p
 	committedVersion, err := v.DB.GetVersion(ns, kvRead.Key)
 	if err != nil {
 		return false, err
+<<<<<<< HEAD
+=======
+	}
+	var committedVersion *version.Height
+	if versionedValue != nil {
+		committedVersion = versionedValue.Version
+>>>>>>> release-1.0
 	}
 
 	logger.Debugf("Comparing versions for key [%s]: committed version=%#v and read version=%#v",

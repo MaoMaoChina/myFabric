@@ -14,9 +14,17 @@ you have all the :doc:`prereqs` installed on the platform(s)
 on which you'll be developing blockchain applications and/or operating
 Hyperledger Fabric.
 
+<<<<<<< HEAD
 Once you have the prerequisites installed, you are ready to download and
 install HyperLedger Fabric. While we work on developing real installers for the
 Fabric binaries, we provide a script that will :doc:`install` to your system.
+=======
+Install Binaries and Docker Images
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+While we work on developing real installers for the Hyperledger Fabric
+binaries, we provide a script that will :ref:`binaries` to your system.
+>>>>>>> release-1.0
 The script also will download the Docker images to your local registry.
 
 After you have downloaded the Fabric Samples and Docker images to your local
@@ -38,8 +46,40 @@ in various programming languages. Smart contract SDKs are available for Go, Node
 Hyperledger Fabric application SDKs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 Hyperledger Fabric offers a number of SDKs to support developing applications
 in various programming languages. SDKs are available for Node.js and Java:
+=======
+API Documentation
+^^^^^^^^^^^^^^^^^
+
+The API documentation for Hyperledger Fabric's Golang APIs can be found on
+the godoc site for `Fabric <http://godoc.org/github.com/hyperledger/fabric>`_.
+If you plan on doing any development using these APIs, you may want to
+bookmark those links now.
+
+Hyperledger Fabric SDKs
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Hyperledger Fabric intends to offer a number of SDKs for a wide variety of
+programming languages. The first two delivered SDKs are the Node.js and Java
+SDKs. We hope to provide Python and Go SDKs soon after the 1.0.0 release.
+
+  * `Hyperledger Fabric Node SDK documentation <https://fabric-sdk-node.github.io/>`__.
+  * `Hyperledger Fabric Java SDK documentation <https://github.com/hyperledger/fabric-sdk-java>`__.
+
+Hyperledger Fabric CA
+^^^^^^^^^^^^^^^^^^^^^
+
+Hyperledger Fabric provides an optional
+`certificate authority service <http://hyperledger-fabric-ca.readthedocs.io/en/latest>`_
+that you may choose to use to generate the certificates and key material
+to configure and manage identity in your blockchain network. However, any CA
+that can generate ECDSA certificates may be used.
+
+Tutorials
+^^^^^^^^^
+>>>>>>> release-1.0
 
   * `Node.js SDK <https://github.com/hyperledger/fabric-sdk-node>`__ and `Node.js SDK documentation <https://hyperledger.github.io/fabric-sdk-node/>`__.
   * `Java SDK <https://github.com/hyperledger/fabric-gateway-java>`__ and `Java SDK documentation <https://hyperledger.github.io/fabric-gateway-java/>`__.
@@ -61,6 +101,10 @@ Hyperledger Fabric provides an optional
 that you may choose to use to generate the certificates and key material
 to configure and manage identity in your blockchain network. However, any CA
 that can generate ECDSA certificates may be used.
+
+.. note:: If you have questions not addressed by this documentation, or run into
+          issues with any of the tutorials, please visit the :doc:`questions`
+          page for some tips on where to find additional help.
 
 .. Licensed under Creative Commons Attribution 4.0 International License
    https://creativecommons.org/licenses/by/4.0/

@@ -7,7 +7,18 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/955/badge)](https://bestpractices.coreinfrastructure.org/projects/955)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hyperledger/fabric)](https://goreportcard.com/report/github.com/hyperledger/fabric)
 [![GoDoc](https://godoc.org/github.com/hyperledger/fabric?status.svg)](https://godoc.org/github.com/hyperledger/fabric)
+<<<<<<< HEAD
 [![Documentation Status](https://readthedocs.org/projects/hyperledger-fabric/badge/?version=master)](http://hyperledger-fabric.readthedocs.io/en/master/?badge=master)
+=======
+[![Documentation Status](https://readthedocs.org/projects/hyperledger-fabric/badge/?version=release-1.0)](http://hyperledger-fabric.readthedocs.io/en/release-1.0/?badge=release-1.0)
+
+**Note:** This is a **read-only mirror** of the formal [Gerrit](https://gerrit.hyperledger.org/r/#/admin/projects/fabric) repository,
+where active development is ongoing. Issue tracking is handled in [Jira](https://jira.hyperledger.org/secure/Dashboard.jspa?selectPageId=10104).
+
+This project is an _Active_ Hyperledger project. For more information on the history of this project see the [Fabric wiki page](https://wiki.hyperledger.org/projects/Fabric). Information on what _Active_ entails can be found in
+the [Hyperledger Project Lifecycle document](https://wiki.hyperledger.org/community/project-lifecycle).
+
+>>>>>>> release-1.0
 
 This project is an _Active_ Hyperledger project. For more information on the history of this project see the [Fabric wiki page](https://wiki.hyperledger.org/display/fabric). Information on what _Active_ entails can be found in
 the [Hyperledger Project Lifecycle document](https://wiki.hyperledger.org/display/HYP/Project+Lifecycle).
@@ -62,6 +73,7 @@ Please visit the [Hyperledger Fabric wiki](https://wiki.hyperledger.org/display/
 ## Documentation, Getting Started and Developer Guides
 
 Please visit our
+<<<<<<< HEAD
 online documentation for
 information on getting started using and developing with the fabric, SDK and chaincode:
 - [v1.4](http://hyperledger-fabric.readthedocs.io/en/release-1.4/)
@@ -72,6 +84,15 @@ information on getting started using and developing with the fabric, SDK and cha
 - [master branch (development)](http://hyperledger-fabric.readthedocs.io/en/master/)
 
 It's recommended for first-time users to begin by going through the Getting Started section of the documentation in order to gain familiarity with the Hyperledger Fabric components and the basic transaction flow.
+=======
+[online documentation](http://hyperledger-fabric.readthedocs.io/en/release/) for
+information on getting started using and developing with the fabric, SDK and chaincode.
+
+It's recommended for first-time users to begin by going through the
+[Getting Started](http://hyperledger-fabric.readthedocs.io/en/release/getting_started.html)
+section of the documentation in order to gain familiarity with the Hyperledger
+Fabric components and the basic transaction flow.
+>>>>>>> release-1.0
 
 ## Contributing
 

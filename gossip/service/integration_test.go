@@ -7,11 +7,16 @@ SPDX-License-Identifier: Apache-2.0
 package service
 
 import (
+<<<<<<< HEAD
 	"bytes"
+=======
+	"fmt"
+>>>>>>> release-1.0
 	"sync"
 	"testing"
 	"time"
 
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/core/comm"
 	"github.com/hyperledger/fabric/core/deliverservice"
@@ -28,11 +33,29 @@ type embeddingDeliveryService struct {
 	startOnce sync.Once
 	stopOnce  sync.Once
 	deliverservice.DeliverService
+=======
+	"github.com/hyperledger/fabric/core/deliverservice"
+	"github.com/hyperledger/fabric/core/deliverservice/blocksprovider"
+	"github.com/hyperledger/fabric/gossip/api"
+	"github.com/hyperledger/fabric/gossip/election"
+	"github.com/hyperledger/fabric/gossip/identity"
+	"github.com/hyperledger/fabric/gossip/state"
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
+)
+
+type embeddingDeliveryService struct {
+	deliverclient.DeliverService
+>>>>>>> release-1.0
 	startSignal sync.WaitGroup
 	stopSignal  sync.WaitGroup
 }
 
+<<<<<<< HEAD
 func newEmbeddingDeliveryService(ds deliverservice.DeliverService) *embeddingDeliveryService {
+=======
+func newEmbeddingDeliveryService(ds deliverclient.DeliverService) *embeddingDeliveryService {
+>>>>>>> release-1.0
 	eds := &embeddingDeliveryService{
 		DeliverService: ds,
 	}
@@ -50,16 +73,24 @@ func (eds *embeddingDeliveryService) waitForDeliveryServiceTermination() {
 }
 
 func (eds *embeddingDeliveryService) StartDeliverForChannel(chainID string, ledgerInfo blocksprovider.LedgerInfo, finalizer func()) error {
+<<<<<<< HEAD
 	eds.startOnce.Do(func() {
 		eds.startSignal.Done()
 	})
+=======
+	eds.startSignal.Done()
+>>>>>>> release-1.0
 	return eds.DeliverService.StartDeliverForChannel(chainID, ledgerInfo, finalizer)
 }
 
 func (eds *embeddingDeliveryService) StopDeliverForChannel(chainID string) error {
+<<<<<<< HEAD
 	eds.stopOnce.Do(func() {
 		eds.stopSignal.Done()
 	})
+=======
+	eds.stopSignal.Done()
+>>>>>>> release-1.0
 	return eds.DeliverService.StopDeliverForChannel(chainID)
 }
 
@@ -71,9 +102,15 @@ type embeddingDeliveryServiceFactory struct {
 	DeliveryServiceFactory
 }
 
+<<<<<<< HEAD
 func (edsf *embeddingDeliveryServiceFactory) Service(g GossipServiceAdapter, endpoints *orderers.ConnectionSource, mcs api.MessageCryptoService) deliverservice.DeliverService {
 	ds := edsf.DeliveryServiceFactory.Service(g, endpoints, mcs)
 	return newEmbeddingDeliveryService(ds)
+=======
+func (edsf *embeddingDeliveryServiceFactory) Service(g GossipService, endpoints []string, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
+	ds, _ := edsf.DeliveryServiceFactory.Service(g, endpoints, mcs)
+	return newEmbeddingDeliveryService(ds), nil
+>>>>>>> release-1.0
 }
 
 func TestLeaderYield(t *testing.T) {
@@ -81,6 +118,7 @@ func TestLeaderYield(t *testing.T) {
 	// There isn't any orderer present so the leader peer won't be able to
 	// connect to the orderer, and should relinquish its leadership after a while.
 	// Make sure the other peer declares itself as the leader soon after.
+<<<<<<< HEAD
 	takeOverMaxTimeout := time.Minute
 	// It's enough to make single re-try
 	// There is no ordering service available anyway, hence connection timeout
@@ -99,10 +137,19 @@ func TestLeaderYield(t *testing.T) {
 	}
 	n := 2
 	gossips := startPeers(t, serviceConfig, n, 0, 1)
+=======
+	deliverclient.SetReconnectTotalTimeThreshold(time.Second * 5)
+	viper.Set("peer.gossip.useLeaderElection", true)
+	viper.Set("peer.gossip.orgLeader", false)
+	n := 2
+	portPrefix := 30000
+	gossips := startPeers(t, n, portPrefix)
+>>>>>>> release-1.0
 	defer stopPeers(gossips)
 	channelName := "channelA"
 	peerIndexes := []int{0, 1}
 	// Add peers to the channel
+<<<<<<< HEAD
 	addPeersToChannel(t, n, channelName, gossips, peerIndexes)
 	// Prime the membership view of the peers
 	waitForFullMembershipOrFailNow(t, channelName, gossips, n, time.Second*30, time.Millisecond*100)
@@ -155,6 +202,38 @@ func TestLeaderYield(t *testing.T) {
 		defer p1.lock.RUnlock()
 
 		if p0.leaderElection[channelName].IsLeader() {
+=======
+	addPeersToChannel(t, n, portPrefix, channelName, gossips, peerIndexes)
+	// Prime the membership view of the peers
+	waitForFullMembership(t, gossips, n, time.Second*30, time.Second*2)
+	mcs := &naiveCryptoService{}
+	// Helper function that creates a gossipService instance
+	newGossipService := func(i int) *gossipServiceImpl {
+		peerIdentity := api.PeerIdentityType(fmt.Sprintf("localhost:%d", portPrefix+i))
+		gs := &gossipServiceImpl{
+			mcs:             mcs,
+			gossipSvc:       gossips[i],
+			chains:          make(map[string]state.GossipStateProvider),
+			leaderElection:  make(map[string]election.LeaderElectionService),
+			deliveryFactory: &embeddingDeliveryServiceFactory{&deliveryFactoryImpl{}},
+			idMapper:        identity.NewIdentityMapper(mcs, peerIdentity),
+			peerIdentity:    peerIdentity,
+			secAdv:          &secAdvMock{},
+		}
+		gossipServiceInstance = gs
+		gs.InitializeChannel(channelName, &mockLedgerInfo{1}, []string{"localhost:7050"})
+		return gs
+	}
+
+	p0 := newGossipService(0)
+	p1 := newGossipService(1)
+
+	// Returns index of the leader or -1 if no leader elected
+	getLeader := func() int {
+		if p0.leaderElection[channelName].IsLeader() {
+			// Ensure p1 isn't a leader at the same time
+			assert.False(t, p1.leaderElection[channelName].IsLeader())
+>>>>>>> release-1.0
 			return 0
 		}
 		if p1.leaderElection[channelName].IsLeader() {
@@ -163,7 +242,12 @@ func TestLeaderYield(t *testing.T) {
 		return -1
 	}
 
+<<<<<<< HEAD
 	ds0 := p0.deliveryService[channelName].(*embeddingDeliveryService)
+=======
+	ds0 := p0.deliveryService.(*embeddingDeliveryService)
+	ds1 := p1.deliveryService.(*embeddingDeliveryService)
+>>>>>>> release-1.0
 
 	// Wait for p0 to connect to the ordering service
 	ds0.waitForDeliveryServiceActivation()
@@ -173,6 +257,7 @@ func TestLeaderYield(t *testing.T) {
 	// Wait for p0 to lose its leadership
 	ds0.waitForDeliveryServiceTermination()
 	t.Log("p0 stopped its delivery service")
+<<<<<<< HEAD
 	// Ensure p0 is not a leader
 	assert.NotEqual(t, 0, getLeader())
 	// Wait for p1 to take over. It should take over before time reaches timeLimit
@@ -189,4 +274,17 @@ func TestLeaderYield(t *testing.T) {
 	p1.chains[channelName].Stop()
 	p0.deliveryService[channelName].Stop()
 	p1.deliveryService[channelName].Stop()
+=======
+	// Ensure there is no leader
+	assert.Equal(t, -1, getLeader())
+	// Wait for p1 to take over
+	ds1.waitForDeliveryServiceActivation()
+	t.Log("p1 started its delivery service")
+	// Ensure it's a leader now
+	assert.Equal(t, 1, getLeader())
+	p0.chains[channelName].Stop()
+	p1.chains[channelName].Stop()
+	p0.deliveryService.Stop()
+	p1.deliveryService.Stop()
+>>>>>>> release-1.0
 }

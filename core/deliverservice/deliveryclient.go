@@ -26,6 +26,13 @@ import (
 
 var logger = flogging.MustGetLogger("deliveryClient")
 
+// SetReconnectTotalTimeThreshold sets the total time the delivery service
+// may spend in reconnection attempts until its retry logic gives up
+// and returns an error
+func SetReconnectTotalTimeThreshold(duration time.Duration) {
+	reConnectTotalTimeThreshold = duration
+}
+
 // DeliverService used to communicate with orderers to obtain
 // new blocks and send them to the committer service
 type DeliverService interface {
@@ -116,6 +123,17 @@ func (d *deliverServiceImpl) StartDeliverForChannel(chainID string, ledgerInfo b
 		errMsg := fmt.Sprintf("Delivery service - block provider already exists for %s found, can't start delivery", chainID)
 		logger.Errorf(errMsg)
 		return errors.New(errMsg)
+<<<<<<< HEAD
+=======
+	} else {
+		client := d.newClient(chainID, ledgerInfo)
+		logger.Debug("This peer will pass blocks from orderer service to other peers for channel", chainID)
+		d.blockProviders[chainID] = blocksprovider.NewBlocksProvider(chainID, client, d.conf.Gossip, d.conf.CryptoSvc)
+		go func() {
+			d.blockProviders[chainID].DeliverBlocks()
+			finalizer()
+		}()
+>>>>>>> release-1.0
 	}
 	logger.Info("This peer will retrieve blocks from ordering service and disseminate to other peers in the organization for channel", chainID)
 	dc := &blocksprovider.Deliverer{

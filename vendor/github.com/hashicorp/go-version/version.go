@@ -10,6 +10,7 @@ import (
 )
 
 // The compiled regular expression used to test the validity of a version.
+<<<<<<< HEAD
 var (
 	versionRegexp *regexp.Regexp
 	semverRegexp  *regexp.Regexp
@@ -29,6 +30,16 @@ const (
 		`(\+([0-9A-Za-z\-~]+(\.[0-9A-Za-z\-~]+)*))?` +
 		`?`
 )
+=======
+var versionRegexp *regexp.Regexp
+
+// The raw regular expression string used for testing the validity
+// of a version.
+const VersionRegexpRaw string = `v?([0-9]+(\.[0-9]+)*?)` +
+	`(-?([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?` +
+	`(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?` +
+	`?`
+>>>>>>> release-1.0
 
 // Version represents a single version.
 type Version struct {
@@ -36,17 +47,24 @@ type Version struct {
 	pre      string
 	segments []int64
 	si       int
+<<<<<<< HEAD
 	original string
+=======
+>>>>>>> release-1.0
 }
 
 func init() {
 	versionRegexp = regexp.MustCompile("^" + VersionRegexpRaw + "$")
+<<<<<<< HEAD
 	semverRegexp = regexp.MustCompile("^" + SemverRegexpRaw + "$")
+=======
+>>>>>>> release-1.0
 }
 
 // NewVersion parses the given version and returns a new
 // Version.
 func NewVersion(v string) (*Version, error) {
+<<<<<<< HEAD
 	return newVersion(v, versionRegexp)
 }
 
@@ -59,6 +77,9 @@ func NewSemver(v string) (*Version, error) {
 
 func newVersion(v string, pattern *regexp.Regexp) (*Version, error) {
 	matches := pattern.FindStringSubmatch(v)
+=======
+	matches := versionRegexp.FindStringSubmatch(v)
+>>>>>>> release-1.0
 	if matches == nil {
 		return nil, fmt.Errorf("Malformed version: %s", v)
 	}
@@ -83,6 +104,7 @@ func newVersion(v string, pattern *regexp.Regexp) (*Version, error) {
 		segments = append(segments, 0)
 	}
 
+<<<<<<< HEAD
 	pre := matches[7]
 	if pre == "" {
 		pre = matches[4]
@@ -94,6 +116,13 @@ func newVersion(v string, pattern *regexp.Regexp) (*Version, error) {
 		segments: segments,
 		si:       si,
 		original: v,
+=======
+	return &Version{
+		metadata: matches[7],
+		pre:      matches[4],
+		segments: segments,
+		si:       si,
+>>>>>>> release-1.0
 	}, nil
 }
 
@@ -112,7 +141,11 @@ func Must(v *Version, err error) *Version {
 // or larger than the other version, respectively.
 //
 // If you want boolean results, use the LessThan, Equal,
+<<<<<<< HEAD
 // GreaterThan, GreaterThanOrEqual or LessThanOrEqual methods.
+=======
+// or GreaterThan methods.
+>>>>>>> release-1.0
 func (v *Version) Compare(other *Version) int {
 	// A quick, efficient equality check
 	if v.String() == other.String() {
@@ -196,16 +229,26 @@ func comparePart(preSelf string, preOther string) int {
 		return 0
 	}
 
+<<<<<<< HEAD
 	var selfInt int64
 	selfNumeric := true
 	selfInt, err := strconv.ParseInt(preSelf, 10, 64)
+=======
+	selfNumeric := true
+	_, err := strconv.ParseInt(preSelf, 10, 64)
+>>>>>>> release-1.0
 	if err != nil {
 		selfNumeric = false
 	}
 
+<<<<<<< HEAD
 	var otherInt int64
 	otherNumeric := true
 	otherInt, err = strconv.ParseInt(preOther, 10, 64)
+=======
+	otherNumeric := true
+	_, err = strconv.ParseInt(preOther, 10, 64)
+>>>>>>> release-1.0
 	if err != nil {
 		otherNumeric = false
 	}
@@ -229,9 +272,13 @@ func comparePart(preSelf string, preOther string) int {
 		return -1
 	} else if !selfNumeric && otherNumeric {
 		return 1
+<<<<<<< HEAD
 	} else if !selfNumeric && !otherNumeric && preSelf > preOther {
 		return 1
 	} else if selfInt > otherInt {
+=======
+	} else if preSelf > preOther {
+>>>>>>> release-1.0
 		return 1
 	}
 
@@ -288,21 +335,27 @@ func (v *Version) GreaterThan(o *Version) bool {
 	return v.Compare(o) > 0
 }
 
+<<<<<<< HEAD
 // GreaterThanOrEqualTo tests if this version is greater than or equal to another version.
 func (v *Version) GreaterThanOrEqual(o *Version) bool {
 	return v.Compare(o) >= 0
 }
 
+=======
+>>>>>>> release-1.0
 // LessThan tests if this version is less than another version.
 func (v *Version) LessThan(o *Version) bool {
 	return v.Compare(o) < 0
 }
 
+<<<<<<< HEAD
 // LessThanOrEqualTo tests if this version is less than or equal to another version.
 func (v *Version) LessThanOrEqual(o *Version) bool {
 	return v.Compare(o) <= 0
 }
 
+=======
+>>>>>>> release-1.0
 // Metadata returns any metadata that was part of the version
 // string.
 //
@@ -341,19 +394,26 @@ func (v *Version) Segments() []int {
 // for a version "1.2.3-beta", segments will return a slice of
 // 1, 2, 3.
 func (v *Version) Segments64() []int64 {
+<<<<<<< HEAD
 	result := make([]int64, len(v.segments))
 	copy(result, v.segments)
 	return result
+=======
+	return v.segments
+>>>>>>> release-1.0
 }
 
 // String returns the full version string included pre-release
 // and metadata information.
+<<<<<<< HEAD
 //
 // This value is rebuilt according to the parsed segments and other
 // information. Therefore, ambiguities in the version string such as
 // prefixed zeroes (1.04.0 => 1.4.0), `v` prefix (v1.0.0 => 1.0.0), and
 // missing parts (1.0 => 1.0.0) will be made into a canonicalized form
 // as shown in the parenthesized examples.
+=======
+>>>>>>> release-1.0
 func (v *Version) String() string {
 	var buf bytes.Buffer
 	fmtParts := make([]string, len(v.segments))
@@ -372,9 +432,12 @@ func (v *Version) String() string {
 
 	return buf.String()
 }
+<<<<<<< HEAD
 
 // Original returns the original parsed version as-is, including any
 // potential whitespace, `v` prefix, etc.
 func (v *Version) Original() string {
 	return v.original
 }
+=======
+>>>>>>> release-1.0

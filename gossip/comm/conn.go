@@ -235,7 +235,21 @@ func (conn *connection) close() {
 	})
 }
 
+<<<<<<< HEAD
 func (conn *connection) send(msg *protoext.SignedGossipMessage, onErr func(error), shouldBlock blockingBehavior) {
+=======
+func (conn *connection) send(msg *proto.SignedGossipMessage, onErr func(error)) {
+	conn.Lock()
+	defer conn.Unlock()
+
+	if len(conn.outBuff) == util.GetIntOrDefault("peer.gossip.sendBuffSize", defSendBuffSize) {
+		if conn.logger.IsEnabledFor(logging.DEBUG) {
+			conn.logger.Debug("Buffer to", conn.info.Endpoint, "overflowed, dropping message", msg.String())
+		}
+		return
+	}
+
+>>>>>>> release-1.0
 	m := &msgSending{
 		envelope: msg.Envelope,
 		onErr:    onErr,

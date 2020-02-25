@@ -14,6 +14,10 @@ import (
 	"sync/atomic"
 
 	"github.com/davecgh/go-spew/spew"
+<<<<<<< HEAD
+=======
+
+>>>>>>> release-1.0
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
@@ -114,11 +118,19 @@ func newBlockfileMgr(id string, conf *Conf, indexConfig *blkstorage.IndexConfig,
 	} else {
 		logger.Debug(`Synching block information from block storage (if needed)`)
 		syncCPInfoFromFS(rootDir, cpInfo)
+<<<<<<< HEAD
 	}
 	err = mgr.saveCurrentInfo(cpInfo, true)
 	if err != nil {
 		panic(fmt.Sprintf("Could not save next block file info to db: %s", err))
 	}
+=======
+	}
+	err = mgr.saveCurrentInfo(cpInfo, true)
+	if err != nil {
+		panic(fmt.Sprintf("Could not save next block file info to db: %s", err))
+	}
+>>>>>>> release-1.0
 
 	//Open a writer to the file identified by the number and truncate it to only contain the latest block
 	// that was completely saved (file system, index, cpinfo, etc)
@@ -408,7 +420,11 @@ func (mgr *blockfileMgr) syncIndex() error {
 		}
 
 		//Update the blockIndexInfo with what was actually stored in file system
+<<<<<<< HEAD
 		blockIdxInfo.blockHash = protoutil.BlockHeaderHash(info.blockHeader)
+=======
+		blockIdxInfo.blockHash = info.blockHeader.Hash()
+>>>>>>> release-1.0
 		blockIdxInfo.blockNum = info.blockHeader.Number
 		blockIdxInfo.flp = &fileLocPointer{fileSuffixNum: blockPlacementInfo.fileNum,
 			locPointer: locPointer{offset: int(blockPlacementInfo.blockStartOffset)}}

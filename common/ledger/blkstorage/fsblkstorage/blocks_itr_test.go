@@ -72,6 +72,7 @@ func TestBlockItrClose(t *testing.T) {
 	assert.Nil(t, bh)
 }
 
+<<<<<<< HEAD
 func TestRaceToDeadlock(t *testing.T) {
 	env := newTestEnv(t, NewConf(testPath(), 0))
 	defer env.Cleanup()
@@ -105,6 +106,8 @@ func TestRaceToDeadlock(t *testing.T) {
 	}
 }
 
+=======
+>>>>>>> release-1.0
 func TestBlockItrCloseWithoutRetrieve(t *testing.T) {
 	env := newTestEnv(t, NewConf(testPath(), 0))
 	defer env.Cleanup()
@@ -115,7 +118,11 @@ func TestBlockItrCloseWithoutRetrieve(t *testing.T) {
 	blkfileMgrWrapper.addBlocks(blocks)
 
 	itr, err := blkfileMgr.retrieveBlocks(2)
+<<<<<<< HEAD
 	assert.NoError(t, err)
+=======
+	testutil.AssertNoError(t, err, "")
+>>>>>>> release-1.0
 	itr.Close()
 }
 
@@ -131,12 +138,20 @@ func TestCloseMultipleItrsWaitForFutureBlock(t *testing.T) {
 	wg := &sync.WaitGroup{}
 	wg.Add(2)
 	itr1, err := blkfileMgr.retrieveBlocks(7)
+<<<<<<< HEAD
 	assert.NoError(t, err)
+=======
+	testutil.AssertNoError(t, err, "")
+>>>>>>> release-1.0
 	// itr1 does not retrieve any block because it closes before new blocks are added
 	go iterateInBackground(t, itr1, 9, wg, []uint64{})
 
 	itr2, err := blkfileMgr.retrieveBlocks(8)
+<<<<<<< HEAD
 	assert.NoError(t, err)
+=======
+	testutil.AssertNoError(t, err, "")
+>>>>>>> release-1.0
 	// itr2 retrieves two blocks 8 and 9. Because it started waiting for 8 and quits at 9
 	go iterateInBackground(t, itr2, 9, wg, []uint64{8, 9})
 
@@ -150,11 +165,19 @@ func TestCloseMultipleItrsWaitForFutureBlock(t *testing.T) {
 func iterateInBackground(t *testing.T, itr *blocksItr, quitAfterBlkNum uint64, wg *sync.WaitGroup, expectedBlockNums []uint64) {
 	defer wg.Done()
 	retrievedBlkNums := []uint64{}
+<<<<<<< HEAD
 	defer func() { assert.Equal(t, expectedBlockNums, retrievedBlkNums) }()
 
 	for {
 		blk, err := itr.Next()
 		assert.NoError(t, err)
+=======
+	defer func() { testutil.AssertEquals(t, retrievedBlkNums, expectedBlockNums) }()
+
+	for {
+		blk, err := itr.Next()
+		testutil.AssertNoError(t, err, "")
+>>>>>>> release-1.0
 		if blk == nil {
 			return
 		}
@@ -167,7 +190,11 @@ func iterateInBackground(t *testing.T, itr *blocksItr, quitAfterBlkNum uint64, w
 	}
 }
 
+<<<<<<< HEAD
 func testIterateAndVerify(t *testing.T, itr *blocksItr, blocks []*common.Block, readyAt int, readyChan chan<- struct{}, doneChan chan bool) {
+=======
+func testIterateAndVerify(t *testing.T, itr *blocksItr, blocks []*common.Block, doneChan chan bool) {
+>>>>>>> release-1.0
 	blocksIterated := 0
 	for {
 		t.Logf("blocksIterated: %v", blocksIterated)

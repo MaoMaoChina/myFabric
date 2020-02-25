@@ -7,6 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package configtx
 
 import (
+<<<<<<< HEAD
+=======
+	"fmt"
+>>>>>>> release-1.0
 	"strings"
 
 	cb "github.com/hyperledger/fabric-protos-go/common"
@@ -47,7 +51,11 @@ func computeDeltaSet(readSet, writeSet map[string]comparable) map[string]compara
 
 func validateModPolicy(modPolicy string) error {
 	if modPolicy == "" {
+<<<<<<< HEAD
 		return errors.Errorf("mod_policy not set")
+=======
+		return fmt.Errorf("mod_policy not set")
+>>>>>>> release-1.0
 	}
 
 	trimmed := modPolicy
@@ -55,28 +63,47 @@ func validateModPolicy(modPolicy string) error {
 		trimmed = modPolicy[1:]
 	}
 
+<<<<<<< HEAD
 	for i, pathElement := range strings.Split(trimmed, pathSeparator) {
 		err := validateConfigID(pathElement)
 		if err != nil {
 			return errors.Wrapf(err, "path element at %d is invalid", i)
+=======
+	for i, pathElement := range strings.Split(trimmed, PathSeparator) {
+		err := validateConfigID(pathElement)
+		if err != nil {
+			return fmt.Errorf("path element at %d is invalid: %s", i, err)
+>>>>>>> release-1.0
 		}
 	}
 	return nil
 
 }
 
+<<<<<<< HEAD
 func (vi *ValidatorImpl) verifyDeltaSet(deltaSet map[string]comparable, signedData []*protoutil.SignedData) error {
+=======
+func (cm *configManager) verifyDeltaSet(deltaSet map[string]comparable, signedData []*cb.SignedData) error {
+>>>>>>> release-1.0
 	if len(deltaSet) == 0 {
 		return errors.Errorf("delta set was empty -- update would have no effect")
 	}
 
 	for key, value := range deltaSet {
+<<<<<<< HEAD
 		logger.Debugf("Processing change to key: %s", key)
 		if err := validateModPolicy(value.modPolicy()); err != nil {
 			return errors.Wrapf(err, "invalid mod_policy for element %s", key)
 		}
 
 		existing, ok := vi.configMap[key]
+=======
+		if err := validateModPolicy(value.modPolicy()); err != nil {
+			return fmt.Errorf("invalid mod_policy for element %s: %s", key, err)
+		}
+
+		existing, ok := cm.current.configMap[key]
+>>>>>>> release-1.0
 		if !ok {
 			if value.version() != 0 {
 				return errors.Errorf("attempted to set key %s to version %d, but key does not exist", key, value.version())

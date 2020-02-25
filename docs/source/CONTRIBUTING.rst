@@ -219,6 +219,7 @@ may create a new JIRA. Please try to provide
 sufficient information for someone else to reproduce the
 issue. One of the project's maintainers should respond to your issue within 24
 hours. If not, please bump the issue with a comment and request that it be
+<<<<<<< HEAD
 reviewed. You can also post to the relevant Hyperledger Fabric channel in
 `Hyperledger Chat <https://chat.hyperledger.org>`__.  For example, a doc bug should
 be broadcast to ``#fabric-documentation``, a database bug to ``#fabric-ledger``,
@@ -231,6 +232,12 @@ If you just submitted a JIRA for a bug you've discovered, and would like to
 provide a fix, we would welcome that gladly! Please assign the JIRA issue to
 yourself, then submit a pull request (PR). Please refer to :doc:`github/github`
 for a detailed workflow.
+=======
+reviewed. You can also post to the relevant fabric channel in
+`Hyperledger Rocket Chat <https://chat.hyperledger.org>`__.  For example, a doc bug should
+be broadcast to ``#fabric-documentation``, a database bug to ``#fabric-ledger``,
+and so on... 
+>>>>>>> release-1.0
 
 Fixing issues and working stories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -374,6 +381,45 @@ comments such that it gets to a point that it requires a rebase. It only
 further delays getting it merged and adds more work for you - to
 remediate the merge conflicts.
 
+<<<<<<< HEAD
+=======
+Communication
+--------------
+
+We use `RocketChat <https://chat.hyperledger.org/>`__ for communication
+and Google Hangouts™ for screen sharing between developers. Our
+development planning and prioritization is done in
+`JIRA <https://jira.hyperledger.org>`__, and we take longer running
+discussions/decisions to the `mailing
+list <http://lists.hyperledger.org/mailman/listinfo/hyperledger-fabric>`__.
+
+Maintainers
+-----------
+
+The project's :doc:`maintainers <MAINTAINERS>` are responsible for
+reviewing and merging all patches submitted for review and they guide
+the over-all technical direction of the project within the guidelines
+established by the Hyperledger Technical Steering Committee (TSC).
+
+Becoming a maintainer
+~~~~~~~~~~~~~~~~~~~~~
+
+This project is managed under an open governance model as described in
+our `charter <https://www.hyperledger.org/about/charter>`__. Projects or
+sub-projects will be lead by a set of maintainers. New sub-projects can
+designate an initial set of maintainers that will be approved by the
+top-level project's existing maintainers when the project is first
+approved. The project's maintainers will, from time-to-time, consider
+adding or removing a maintainer. An existing maintainer can submit a
+change set to the :doc:`MAINTAINERS.rst <MAINTAINERS>` file. A nominated
+Contributor may become a Maintainer by a majority approval of the proposal
+by the existing Maintainers. Once approved, the change set is then merged
+and the individual is added to (or alternatively, removed from) the maintainers
+group. Maintainers may be removed by explicit resignation, or for some
+infraction of the `code of conduct <https://wiki.hyperledger.org/community/hyperledger-project-code-of-conduct>`__
+or by consistently demonstrating poor judgement.
+
+>>>>>>> release-1.0
 Legal stuff
 -----------
 

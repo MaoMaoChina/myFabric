@@ -373,6 +373,31 @@ func (client *client) InSyncReplicas(topic string, partitionID int32) ([]int32, 
 	return dupInt32Slice(metadata.Isr), nil
 }
 
+func (client *client) InSyncReplicas(topic string, partitionID int32) ([]int32, error) {
+	if client.Closed() {
+		return nil, ErrClosedClient
+	}
+
+	metadata := client.cachedMetadata(topic, partitionID)
+
+	if metadata == nil {
+		err := client.RefreshMetadata(topic)
+		if err != nil {
+			return nil, err
+		}
+		metadata = client.cachedMetadata(topic, partitionID)
+	}
+
+	if metadata == nil {
+		return nil, ErrUnknownTopicOrPartition
+	}
+
+	if metadata.Err == ErrReplicaNotAvailable {
+		return nil, metadata.Err
+	}
+	return dupeAndSort(metadata.Isr), nil
+}
+
 func (client *client) Leader(topic string, partitionID int32) (*Broker, error) {
 	if client.Closed() {
 		return nil, ErrClosedClient

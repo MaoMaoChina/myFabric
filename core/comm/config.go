@@ -20,6 +20,7 @@ import (
 // Configuration defaults
 var (
 	// Max send and receive bytes for grpc clients and servers
+<<<<<<< HEAD
 	MaxRecvMsgSize = 100 * 1024 * 1024
 	MaxSendMsgSize = 100 * 1024 * 1024
 	// Default peer keepalive options
@@ -29,6 +30,16 @@ var (
 		ServerInterval:    time.Duration(2) * time.Hour,    // 2 hours - gRPC default
 		ServerTimeout:     time.Duration(20) * time.Second, // 20 sec - gRPC default
 		ServerMinInterval: time.Duration(1) * time.Minute,  // match ClientInterval
+=======
+	maxRecvMsgSize = 100 * 1024 * 1024
+	maxSendMsgSize = 100 * 1024 * 1024
+	// Default keepalive options
+	keepaliveOptions = KeepaliveOptions{
+		ClientKeepaliveTime:    60,   // 1 min
+		ClientKeepaliveTimeout: 20,   // 20 sec - gRPC default
+		ServerKeepaliveTime:    7200, // 2 hours - gRPC default
+		ServerKeepaliveTimeout: 20,   // 20 sec - gRPC default
+>>>>>>> release-1.0
 	}
 	// strong TLS cipher suites
 	DefaultTLSCipherSuites = []uint16{

@@ -2,7 +2,10 @@ package version
 
 import (
 	"fmt"
+<<<<<<< HEAD
 	"reflect"
+=======
+>>>>>>> release-1.0
 	"regexp"
 	"strings"
 )
@@ -114,6 +117,7 @@ func parseSingle(v string) (*Constraint, error) {
 	}, nil
 }
 
+<<<<<<< HEAD
 func prereleaseCheck(v, c *Version) bool {
 	switch vPre, cPre := v.Prerelease() != "", c.Prerelease() != ""; {
 	case cPre && vPre:
@@ -134,6 +138,8 @@ func prereleaseCheck(v, c *Version) bool {
 	return true
 }
 
+=======
+>>>>>>> release-1.0
 //-------------------------------------------------------------------
 // Constraint functions
 //-------------------------------------------------------------------
@@ -147,6 +153,7 @@ func constraintNotEqual(v, c *Version) bool {
 }
 
 func constraintGreaterThan(v, c *Version) bool {
+<<<<<<< HEAD
 	return prereleaseCheck(v, c) && v.Compare(c) == 1
 }
 
@@ -168,6 +175,24 @@ func constraintPessimistic(v, c *Version) bool {
 		return false
 	}
 
+=======
+	return v.Compare(c) == 1
+}
+
+func constraintLessThan(v, c *Version) bool {
+	return v.Compare(c) == -1
+}
+
+func constraintGreaterThanEqual(v, c *Version) bool {
+	return v.Compare(c) >= 0
+}
+
+func constraintLessThanEqual(v, c *Version) bool {
+	return v.Compare(c) <= 0
+}
+
+func constraintPessimistic(v, c *Version) bool {
+>>>>>>> release-1.0
 	// If the version being checked is naturally less than the constraint, then there
 	// is no way for the version to be valid against the constraint
 	if v.LessThan(c) {

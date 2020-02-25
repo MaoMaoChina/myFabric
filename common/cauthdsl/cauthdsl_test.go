@@ -168,6 +168,7 @@ func TestNilSignaturePolicyEnvelope(t *testing.T) {
 	assert.Error(t, err, "Fail to compile")
 }
 
+<<<<<<< HEAD
 func TestSignedByMspClient(t *testing.T) {
 	e := SignedByMspClient("A")
 	assert.Equal(t, 1, len(e.Identities))
@@ -218,4 +219,43 @@ func TestReturnNil(t *testing.T) {
 	spe, err := compile(policy.Rule, policy.Identities)
 	assert.Nil(t, spe)
 	assert.EqualError(t, err, "identity index out of range, requested -1, but identities length is 2")
+=======
+func TestDeduplicate(t *testing.T) {
+	ids := []*cb.SignedData{
+		&cb.SignedData{
+			Identity: []byte("id1"),
+		},
+		&cb.SignedData{
+			Identity: []byte("id2"),
+		},
+		&cb.SignedData{
+			Identity: []byte("id3"),
+		},
+	}
+
+	t.Run("Empty", func(t *testing.T) {
+		result := deduplicate([]*cb.SignedData{})
+		assert.Equal(t, []*cb.SignedData{}, result, "Should have no identities")
+	})
+
+	t.Run("NoDuplication", func(t *testing.T) {
+		result := deduplicate(ids)
+		assert.Equal(t, ids, result, "No identities should have been removed")
+	})
+
+	t.Run("AllDuplication", func(t *testing.T) {
+		result := deduplicate([]*cb.SignedData{ids[0], ids[0], ids[0]})
+		assert.Equal(t, []*cb.SignedData{ids[0]}, result, "All but the first identity should have been removed")
+	})
+
+	t.Run("DuplicationPreservesOrder", func(t *testing.T) {
+		result := deduplicate([]*cb.SignedData{ids[1], ids[0], ids[0]})
+		assert.Equal(t, []*cb.SignedData{ids[1], ids[0]}, result, "The third identity should have been dropped")
+	})
+
+	t.Run("ComplexDuplication", func(t *testing.T) {
+		result := deduplicate([]*cb.SignedData{ids[1], ids[0], ids[0], ids[1], ids[2], ids[0], ids[2], ids[1]})
+		assert.Equal(t, []*cb.SignedData{ids[1], ids[0], ids[2]}, result, "Expected only three non-duplicate identities")
+	})
+>>>>>>> release-1.0
 }

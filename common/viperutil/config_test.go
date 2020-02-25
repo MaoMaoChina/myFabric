@@ -95,6 +95,7 @@ func TestKafkaVersionDecode(t *testing.T) {
 		{"0.10.2.1", sarama.V0_10_2_0, false},
 		{"0.10.2.2", sarama.V0_10_2_0, false},
 		{"0.10.2.3", sarama.V0_10_2_0, false},
+<<<<<<< HEAD
 		{"0.11", sarama.V0_11_0_0, false},
 		{"0.11.0", sarama.V0_11_0_0, false},
 		{"0.11.0.0", sarama.V0_11_0_0, false},
@@ -103,6 +104,11 @@ func TestKafkaVersionDecode(t *testing.T) {
 		{"1.0.0", sarama.V1_0_0_0, false},
 		{"1.0.1", sarama.V1_0_0_0, false},
 		{"2.0.0", sarama.V1_0_0_0, false},
+=======
+		{"0.11", sarama.KafkaVersion{}, true},
+		{"0.11.0", sarama.KafkaVersion{}, true},
+		{"0.11.0.0", sarama.KafkaVersion{}, true},
+>>>>>>> release-1.0
 		{"Malformed", sarama.KafkaVersion{}, true},
 	}
 
@@ -445,6 +451,7 @@ func TestStringFromFileEnv(t *testing.T) {
 
 }
 
+<<<<<<< HEAD
 func TestDecodeOpaqueField(t *testing.T) {
 	yaml := `---
 Foo: bar
@@ -454,6 +461,38 @@ Hello:
 	config := viper.New()
 	config.SetConfigType("yaml")
 	if err := config.ReadConfig(bytes.NewReader([]byte(yaml))); err != nil {
+=======
+func TestEnhancedExactUnmarshalKey(t *testing.T) {
+	type Nested struct {
+		Key     string
+		BoolVar bool
+	}
+
+	type nestedKey struct {
+		Nested Nested
+	}
+
+	yaml := "---\n" +
+		"Top:\n" +
+		"  Nested:\n" +
+		"    Nested:\n" +
+		"      Key: BAD\n" +
+		"      BoolVar: true\n"
+
+	envVar := "VIPERUTIL_TOP_NESTED_NESTED_KEY"
+	envVal := "GOOD"
+	os.Setenv(envVar, envVal)
+	defer os.Unsetenv(envVar)
+
+	viper.SetEnvPrefix(Prefix)
+	defer viper.Reset()
+	viper.AutomaticEnv()
+	replacer := strings.NewReplacer(".", "_")
+	viper.SetEnvKeyReplacer(replacer)
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadConfig(bytes.NewReader([]byte(yaml))); err != nil {
+>>>>>>> release-1.0
 		t.Fatalf("Error reading config: %s", err)
 	}
 	var conf struct {
@@ -464,7 +503,14 @@ Hello:
 		t.Fatalf("Error unmashalling: %s", err)
 	}
 
+<<<<<<< HEAD
 	if conf.Foo != "bar" || conf.Hello.World != 42 {
 		t.Fatalf("Incorrect decoding")
 	}
+=======
+	if uconf.Nested.BoolVar != true {
+		t.Fatalf(`Expected: "%t", Actual: "%t"`, true, uconf.Nested.BoolVar)
+	}
+
+>>>>>>> release-1.0
 }

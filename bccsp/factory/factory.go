@@ -58,7 +58,11 @@ type BCCSPFactory interface {
 
 // GetDefault returns a non-ephemeral (long-term) BCCSP
 func GetDefault() bccsp.BCCSP {
+<<<<<<< HEAD
 	if DefaultBCCSP == nil {
+=======
+	if defaultBCCSP == nil {
+>>>>>>> release-1.0
 		logger.Debug("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
 		bootBCCSPInitOnce.Do(func() {
 			var err error

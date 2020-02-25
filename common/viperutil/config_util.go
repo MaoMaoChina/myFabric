@@ -20,7 +20,10 @@ import (
 
 	"github.com/Shopify/sarama"
 	version "github.com/hashicorp/go-version"
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric/bccsp/factory"
+=======
+>>>>>>> release-1.0
 	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
@@ -273,6 +276,7 @@ func init() {
 	kafkaVersionConstraints[sarama.V0_10_0_1], _ = version.NewConstraint(">=0.10.0.1,<0.10.1.0")
 	kafkaVersionConstraints[sarama.V0_10_1_0], _ = version.NewConstraint(">=0.10.1.0,<0.10.2.0")
 	kafkaVersionConstraints[sarama.V0_10_2_0], _ = version.NewConstraint(">=0.10.2.0,<0.11.0.0")
+<<<<<<< HEAD
 	kafkaVersionConstraints[sarama.V0_11_0_0], _ = version.NewConstraint(">=0.11.0.0,<1.0.0")
 	kafkaVersionConstraints[sarama.V1_0_0_0], _ = version.NewConstraint(">=1.0.0")
 }
@@ -290,7 +294,28 @@ func kafkaVersionDecodeHook(f reflect.Type, t reflect.Type, data interface{}) (i
 	for kafkaVersion, constraints := range kafkaVersionConstraints {
 		if constraints.Check(v) {
 			return kafkaVersion, nil
+=======
+}
+
+func kafkaVersionDecodeHook() mapstructure.DecodeHookFunc {
+	return func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+		if f.Kind() != reflect.String || t != reflect.TypeOf(sarama.KafkaVersion{}) {
+			return data, nil
 		}
+
+		v, err := version.NewVersion(data.(string))
+		if err != nil {
+			return nil, fmt.Errorf("Unable to parse Kafka version: %s", err)
+>>>>>>> release-1.0
+		}
+
+		for kafkaVersion, constraints := range kafkaVersionConstraints {
+			if constraints.Check(v) {
+				return kafkaVersion, nil
+			}
+		}
+
+		return nil, fmt.Errorf("Unsupported Kafka version: '%s'", data)
 	}
 
 	return nil, fmt.Errorf("Unsupported Kafka version: '%s'", data)
@@ -351,3 +376,28 @@ func EnhancedExactUnmarshal(v *viper.Viper, output interface{}) error {
 	}
 	return decoder.Decode(leafKeys)
 }
+<<<<<<< HEAD
+=======
+
+// EnhancedExactUnmarshalKey is intended to unmarshal a config file subtreee into a structure
+func EnhancedExactUnmarshalKey(baseKey string, output interface{}) error {
+	m := make(map[string]interface{})
+	m[baseKey] = nil
+	leafKeys := getKeysRecursively("", viper.Get, m)
+
+	logger.Debugf("%+v", leafKeys)
+
+	config := &mapstructure.DecoderConfig{
+		Metadata:         nil,
+		Result:           output,
+		WeaklyTypedInput: true,
+	}
+
+	decoder, err := mapstructure.NewDecoder(config)
+	if err != nil {
+		return err
+	}
+
+	return decoder.Decode(leafKeys[baseKey])
+}
+>>>>>>> release-1.0

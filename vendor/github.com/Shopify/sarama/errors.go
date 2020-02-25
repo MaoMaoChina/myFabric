@@ -83,6 +83,7 @@ type KError int16
 
 // Numeric error codes returned by the Kafka server.
 const (
+<<<<<<< HEAD
 	ErrNoError                            KError = 0
 	ErrUnknown                            KError = -1
 	ErrOffsetOutOfRange                   KError = 1
@@ -157,6 +158,54 @@ const (
 	ErrFetchSessionIDNotFound             KError = 70
 	ErrInvalidFetchSessionEpoch           KError = 71
 	ErrListenerNotFound                   KError = 72
+=======
+	ErrNoError                         KError = 0
+	ErrUnknown                         KError = -1
+	ErrOffsetOutOfRange                KError = 1
+	ErrInvalidMessage                  KError = 2
+	ErrUnknownTopicOrPartition         KError = 3
+	ErrInvalidMessageSize              KError = 4
+	ErrLeaderNotAvailable              KError = 5
+	ErrNotLeaderForPartition           KError = 6
+	ErrRequestTimedOut                 KError = 7
+	ErrBrokerNotAvailable              KError = 8
+	ErrReplicaNotAvailable             KError = 9
+	ErrMessageSizeTooLarge             KError = 10
+	ErrStaleControllerEpochCode        KError = 11
+	ErrOffsetMetadataTooLarge          KError = 12
+	ErrNetworkException                KError = 13
+	ErrOffsetsLoadInProgress           KError = 14
+	ErrConsumerCoordinatorNotAvailable KError = 15
+	ErrNotCoordinatorForConsumer       KError = 16
+	ErrInvalidTopic                    KError = 17
+	ErrMessageSetSizeTooLarge          KError = 18
+	ErrNotEnoughReplicas               KError = 19
+	ErrNotEnoughReplicasAfterAppend    KError = 20
+	ErrInvalidRequiredAcks             KError = 21
+	ErrIllegalGeneration               KError = 22
+	ErrInconsistentGroupProtocol       KError = 23
+	ErrInvalidGroupId                  KError = 24
+	ErrUnknownMemberId                 KError = 25
+	ErrInvalidSessionTimeout           KError = 26
+	ErrRebalanceInProgress             KError = 27
+	ErrInvalidCommitOffsetSize         KError = 28
+	ErrTopicAuthorizationFailed        KError = 29
+	ErrGroupAuthorizationFailed        KError = 30
+	ErrClusterAuthorizationFailed      KError = 31
+	ErrInvalidTimestamp                KError = 32
+	ErrUnsupportedSASLMechanism        KError = 33
+	ErrIllegalSASLState                KError = 34
+	ErrUnsupportedVersion              KError = 35
+	ErrTopicAlreadyExists              KError = 36
+	ErrInvalidPartitions               KError = 37
+	ErrInvalidReplicationFactor        KError = 38
+	ErrInvalidReplicaAssignment        KError = 39
+	ErrInvalidConfig                   KError = 40
+	ErrNotController                   KError = 41
+	ErrInvalidRequest                  KError = 42
+	ErrUnsupportedForMessageFormat     KError = 43
+	ErrPolicyViolation                 KError = 44
+>>>>>>> release-1.0
 )
 
 func (err KError) Error() string {
@@ -255,6 +304,7 @@ func (err KError) Error() string {
 		return "kafka server: The requested operation is not supported by the message format version."
 	case ErrPolicyViolation:
 		return "kafka server: Request parameters do not satisfy the configured policy."
+<<<<<<< HEAD
 	case ErrOutOfOrderSequenceNumber:
 		return "kafka server: The broker received an out of order sequence number."
 	case ErrDuplicateSequenceNumber:
@@ -311,6 +361,8 @@ func (err KError) Error() string {
 		return "kafka server: The fetch session epoch is invalid."
 	case ErrListenerNotFound:
 		return "kafka server: There is no listener on the leader broker that matches the listener on which metadata request was processed."
+=======
+>>>>>>> release-1.0
 	}
 
 	return fmt.Sprintf("Unknown error, how did this happen? Error code = %d", err)

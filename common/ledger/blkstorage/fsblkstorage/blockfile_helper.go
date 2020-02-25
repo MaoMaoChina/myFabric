@@ -7,14 +7,22 @@ SPDX-License-Identifier: Apache-2.0
 package fsblkstorage
 
 import (
+<<<<<<< HEAD
+=======
+	"fmt"
+>>>>>>> release-1.0
 	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"
+=======
+	"github.com/hyperledger/fabric/protos/common"
+>>>>>>> release-1.0
 )
 
 // constructCheckpointInfoFromBlockFiles scans the last blockfile (if any) and construct the checkpoint info
@@ -45,7 +53,11 @@ func constructCheckpointInfoFromBlockFiles(rootDir string) (*checkpointInfo, err
 	fileInfo := getFileInfoOrPanic(rootDir, lastFileNum)
 	logger.Debugf("Last Block file info: FileName=[%s], FileSize=[%d]", fileInfo.Name(), fileInfo.Size())
 	if lastBlockBytes, endOffsetLastBlock, numBlocksInFile, err = scanForLastCompleteBlock(rootDir, lastFileNum, 0); err != nil {
+<<<<<<< HEAD
 		logger.Errorf("Error scanning last file [num=%d]: %s", lastFileNum, err)
+=======
+		logger.Errorf("Error while scanning last file [file num=%d]: %s", lastFileNum, err)
+>>>>>>> release-1.0
 		return nil, err
 	}
 
@@ -54,14 +66,22 @@ func constructCheckpointInfoFromBlockFiles(rootDir string) (*checkpointInfo, err
 		fileInfo := getFileInfoOrPanic(rootDir, secondLastFileNum)
 		logger.Debugf("Second last Block file info: FileName=[%s], FileSize=[%d]", fileInfo.Name(), fileInfo.Size())
 		if lastBlockBytes, _, _, err = scanForLastCompleteBlock(rootDir, secondLastFileNum, 0); err != nil {
+<<<<<<< HEAD
 			logger.Errorf("Error scanning second last file [num=%d]: %s", secondLastFileNum, err)
+=======
+			logger.Errorf("Error while scanning second last file [file num=%d]: %s", secondLastFileNum, err)
+>>>>>>> release-1.0
 			return nil, err
 		}
 	}
 
 	if lastBlockBytes != nil {
 		if lastBlock, err = deserializeBlock(lastBlockBytes); err != nil {
+<<<<<<< HEAD
 			logger.Errorf("Error deserializing last block: %s. Block bytes length: %d", err, len(lastBlockBytes))
+=======
+			logger.Errorf("Error deserializing last block: %s. Block bytes length = %d", err, len(lastBlockBytes))
+>>>>>>> release-1.0
 			return nil, err
 		}
 		lastBlockNumber = lastBlock.Header.Number
@@ -77,6 +97,7 @@ func constructCheckpointInfoFromBlockFiles(rootDir string) (*checkpointInfo, err
 	return cpInfo, nil
 }
 
+<<<<<<< HEAD
 // binarySearchFileNumForBlock locates the file number that contains the given block number.
 // This function assumes that the caller invokes this function with a block number that has been commited
 // For any uncommitted block, this function returns the last file present
@@ -124,12 +145,18 @@ func retriveFirstBlockNumFromFile(rootDir string, fileNum int) (uint64, error) {
 	return blockInfo.blockHeader.Number, nil
 }
 
+=======
+>>>>>>> release-1.0
 func retrieveLastFileSuffix(rootDir string) (int, error) {
 	logger.Debugf("retrieveLastFileSuffix()")
 	biggestFileNum := -1
 	filesInfo, err := ioutil.ReadDir(rootDir)
 	if err != nil {
+<<<<<<< HEAD
 		return -1, errors.Wrapf(err, "error reading dir %s", rootDir)
+=======
+		return -1, err
+>>>>>>> release-1.0
 	}
 	for _, fileInfo := range filesInfo {
 		name := fileInfo.Name()
@@ -158,7 +185,11 @@ func getFileInfoOrPanic(rootDir string, fileNum int) os.FileInfo {
 	filePath := deriveBlockfilePath(rootDir, fileNum)
 	fileInfo, err := os.Lstat(filePath)
 	if err != nil {
+<<<<<<< HEAD
 		panic(errors.Wrapf(err, "error retrieving file info for file number %d", fileNum))
+=======
+		panic(fmt.Errorf("Error in retrieving file info for file num = %d", fileNum))
+>>>>>>> release-1.0
 	}
 	return fileInfo
 }

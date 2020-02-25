@@ -1953,12 +1953,22 @@ func IsJSON(s string) bool {
 // Note that all other URL special characters have been tested successfully without need for special handling
 func encodePathElement(str string) string {
 
+<<<<<<< HEAD
+=======
+	logger.Debugf("Entering encodePathElement()  string=%s", str)
+
+>>>>>>> release-1.0
 	u := &url.URL{}
 	u.Path = str
 	encodedStr := u.EscapedPath() // url encode using golang url path encoding rules
 	encodedStr = strings.Replace(encodedStr, "/", "%2F", -1)
 	encodedStr = strings.Replace(encodedStr, "+", "%2B", -1)
 
+<<<<<<< HEAD
+=======
+	logger.Debugf("Exiting encodePathElement()  encodedStr=%s", encodedStr)
+
+>>>>>>> release-1.0
 	return encodedStr
 }
 

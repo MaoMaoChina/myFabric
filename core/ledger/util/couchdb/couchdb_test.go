@@ -111,8 +111,31 @@ func TestEncodePathElement(t *testing.T) {
 
 }
 
+<<<<<<< HEAD
 func TestHealthCheck(t *testing.T) {
 	client := &http.Client{}
+=======
+func TestEncodePathElement(t *testing.T) {
+
+	encodedString := encodePathElement("testelement")
+	testutil.AssertEquals(t, encodedString, "testelement")
+
+	encodedString = encodePathElement("test element")
+	testutil.AssertEquals(t, encodedString, "test%20element")
+
+	encodedString = encodePathElement("/test element")
+	testutil.AssertEquals(t, encodedString, "%2Ftest%20element")
+
+	encodedString = encodePathElement("/test element:")
+	testutil.AssertEquals(t, encodedString, "%2Ftest%20element:")
+
+	encodedString = encodePathElement("/test+ element:")
+	testutil.AssertEquals(t, encodedString, "%2Ftest%2B%20element:")
+
+}
+
+func TestBadCouchDBInstance(t *testing.T) {
+>>>>>>> release-1.0
 
 	config := testConfig()
 	config.Address = testAddress + "1"

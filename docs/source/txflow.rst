@@ -46,6 +46,7 @@ proposal.
 
 2. **Endorsing peers verify signature & execute the transaction**
 
+<<<<<<< HEAD
 The endorsing peers verify (1) that the transaction proposal is well formed, (2)
 it has not been submitted already in the past (replay-attack protection), (3)
 the signature is valid (using the MSP), and (4) that the submitter (Client A, in the
@@ -66,12 +67,34 @@ payload for the application to consume.
           and determines which users are entitled to submit a transaction to
           that channel. For more information about membership, check out our
           :doc:`membership/membership` documentation.
+=======
+The endorsing peers verify (1) that the transaction proposal is well formed,
+(2) it has not been submitted already in the past (replay-attack protection),
+(3) the signature is valid (using MSP), and (4) that the
+submitter (Client A, in the example) is properly authorized to perform
+the proposed operation on that channel (namely, each endorsing peer ensures that
+the submitter satisfies the channel's *Writers* policy).
+The endorsing peers take the transaction proposal inputs as
+arguments to the invoked chaincode's function. The chaincode is then
+executed against the current state database to produce transaction
+results including a response value, read set, and write set.  No updates are
+made to the ledger at this point. The set of these values, along with the
+endorsing peer’s signature is passed back as a “proposal response” to the SDK
+which parses the payload for the application to consume.
+
+*{The MSP is a peer component that allows them to verify
+transaction requests arriving from clients and to sign transaction results(endorsements).
+The Writing policy is defined at channel creation time, and determines
+which user is entitled to submit a transaction to that channel.}*
+
+>>>>>>> release-1.0
 
 .. image:: images/step3.png
 
 3. **Proposal responses are inspected**
 
 The application verifies the endorsing peer signatures and compares the proposal
+<<<<<<< HEAD
 responses to determine if the proposal responses are the same. If the chaincode
 is only querying the ledger, the application would only inspect the query response and
 would typically not submit the transaction to the ordering service. If the client
@@ -82,6 +105,16 @@ architecture is such that even if an application chooses not to inspect
 responses or otherwise forwards an unendorsed transaction, the endorsement
 policy will still be enforced by peers and upheld at the commit validation
 phase.
+=======
+responses to determine if the proposal responses are the same. If the chaincode only queried
+the ledger, the application would inspect the query response and would typically not
+submit the transaction to Ordering Service. If the client application intends to submit the
+transaction to Ordering Service to update the ledger, the application determines if the specified
+endorsement policy has been fulfilled before submitting (i.e. did peerA and peerB both endorse).
+The architecture is such that even if an application chooses not to inspect responses or otherwise
+forwards an unendorsed transaction, the endorsement policy will still be enforced by peers
+and upheld at the commit validation phase.
+>>>>>>> release-1.0
 
 .. image:: images/step4.png
 
@@ -122,8 +155,13 @@ transaction was validated or invalidated.
           whether your transaction has actually been ordered, validated, and
           committed to the ledger.
 
+<<<<<<< HEAD
 See the :ref:`sequence diagram <swimlane>` to better understand the
 transaction flow.
 
 .. Licensed under Creative Commons Attribution 4.0 International License
 https://creativecommons.org/licenses/by/4.0/
+=======
+.. Licensed under Creative Commons Attribution 4.0 International License
+   https://creativecommons.org/licenses/by/4.0/
+>>>>>>> release-1.0

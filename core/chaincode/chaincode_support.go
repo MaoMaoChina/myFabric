@@ -53,6 +53,7 @@ type Lifecycle interface {
 	ChaincodeEndorsementInfo(channelID, chaincodeName string, qe ledger.SimpleQueryExecutor) (*lifecycle.ChaincodeEndorsementInfo, error)
 }
 
+<<<<<<< HEAD
 // ChaincodeSupport responsible for providing interfacing with chaincodes from the Peer.
 type ChaincodeSupport struct {
 	ACLProvider            ACLProvider
@@ -78,6 +79,82 @@ type ChaincodeSupport struct {
 func (cs *ChaincodeSupport) Launch(ccid string) (*Handler, error) {
 	if h := cs.HandlerRegistry.Handler(ccid); h != nil {
 		return h, nil
+=======
+// runningChaincodes contains maps of chaincodeIDs to their chaincodeRTEs
+type runningChaincodes struct {
+	sync.RWMutex
+	// chaincode environment for each chaincode
+	chaincodeMap map[string]*chaincodeRTEnv
+
+	//mark the starting of launch of a chaincode so multiple requests
+	//do not attempt to start the chaincode at the same time
+	launchStarted map[string]bool
+}
+
+//GetChain returns the chaincode framework support object
+func GetChain() *ChaincodeSupport {
+	return theChaincodeSupport
+}
+
+func (chaincodeSupport *ChaincodeSupport) preLaunchSetup(chaincode string) chan bool {
+	chaincodeSupport.runningChaincodes.Lock()
+	defer chaincodeSupport.runningChaincodes.Unlock()
+	//register placeholder Handler. This will be transferred in registerHandler
+	//NOTE: from this point, existence of handler for this chaincode means the chaincode
+	//is in the process of getting started (or has been started)
+	notfy := make(chan bool, 1)
+	chaincodeSupport.runningChaincodes.chaincodeMap[chaincode] = &chaincodeRTEnv{handler: &Handler{readyNotify: notfy}}
+	return notfy
+}
+
+//call this under lock
+func (chaincodeSupport *ChaincodeSupport) chaincodeHasBeenLaunched(chaincode string) (*chaincodeRTEnv, bool) {
+	chrte, hasbeenlaunched := chaincodeSupport.runningChaincodes.chaincodeMap[chaincode]
+	return chrte, hasbeenlaunched
+}
+
+//call this under lock
+func (chaincodeSupport *ChaincodeSupport) launchStarted(chaincode string) bool {
+	if _, launchStarted := chaincodeSupport.runningChaincodes.launchStarted[chaincode]; launchStarted {
+		return true
+	}
+	return false
+}
+
+// NewChaincodeSupport creates a new ChaincodeSupport instance
+func NewChaincodeSupport(getCCEndpoint func() (*pb.PeerEndpoint, error), userrunsCC bool, ccstartuptimeout time.Duration) *ChaincodeSupport {
+	ccprovider.SetChaincodesPath(config.GetPath("peer.fileSystemPath") + string(filepath.Separator) + "chaincodes")
+
+	pnid := viper.GetString("peer.networkId")
+	pid := viper.GetString("peer.id")
+
+	theChaincodeSupport = &ChaincodeSupport{runningChaincodes: &runningChaincodes{chaincodeMap: make(map[string]*chaincodeRTEnv), launchStarted: make(map[string]bool)}, peerNetworkID: pnid, peerID: pid}
+
+	//initialize global chain
+
+	ccEndpoint, err := getCCEndpoint()
+	if err != nil {
+		chaincodeLogger.Errorf("Error getting chaincode endpoint, using chaincode.peerAddress: %s", err)
+		theChaincodeSupport.peerAddress = viper.GetString("chaincode.peerAddress")
+	} else {
+		theChaincodeSupport.peerAddress = ccEndpoint.Address
+	}
+	chaincodeLogger.Infof("Chaincode support using peerAddress: %s\n", theChaincodeSupport.peerAddress)
+	//peerAddress = viper.GetString("peer.address")
+	if theChaincodeSupport.peerAddress == "" {
+		theChaincodeSupport.peerAddress = peerAddressDefault
+	}
+
+	theChaincodeSupport.userRunsCC = userrunsCC
+
+	theChaincodeSupport.ccStartupTimeout = ccstartuptimeout
+
+	theChaincodeSupport.peerTLS = viper.GetBool("peer.tls.enabled")
+	if theChaincodeSupport.peerTLS {
+		theChaincodeSupport.peerTLSCertFile = config.GetPath("peer.tls.cert.file")
+		theChaincodeSupport.peerTLSKeyFile = config.GetPath("peer.tls.key.file")
+		theChaincodeSupport.peerTLSSvrHostOrd = viper.GetString("peer.tls.serverhostoverride")
+>>>>>>> release-1.0
 	}
 
 	if err := cs.Launcher.Launch(ccid, cs); err != nil {
@@ -185,10 +262,62 @@ func processChaincodeExecutionResult(txid, ccName string, resp *pb.ChaincodeMess
 	}
 }
 
+<<<<<<< HEAD
 // Invoke will invoke chaincode and return the message containing the response.
 // The chaincode will be launched if it is not already running.
 func (cs *ChaincodeSupport) Invoke(txParams *ccprovider.TransactionParams, chaincodeName string, input *pb.ChaincodeInput) (*pb.ChaincodeMessage, error) {
 	ccid, cctype, err := cs.CheckInvocation(txParams, chaincodeName, input)
+=======
+//launchAndWaitForRegister will launch container if not already running. Use
+//the targz to create the image if not found
+func (chaincodeSupport *ChaincodeSupport) launchAndWaitForRegister(ctxt context.Context, cccid *ccprovider.CCContext, cds *pb.ChaincodeDeploymentSpec, cLang pb.ChaincodeSpec_Type, builder api.BuildSpecFactory) error {
+	canName := cccid.GetCanonicalName()
+	if canName == "" {
+		return fmt.Errorf("chaincode name not set")
+	}
+
+	chaincodeSupport.runningChaincodes.Lock()
+	//if its in the map, its either up or being launched. Either case break the
+	//multiple launch by failing
+	if _, hasBeenLaunched := chaincodeSupport.chaincodeHasBeenLaunched(canName); hasBeenLaunched {
+		chaincodeSupport.runningChaincodes.Unlock()
+		return fmt.Errorf("Error chaincode has been launched: %s", canName)
+	}
+
+	//prohibit multiple simultaneous invokes (for example while flooding the
+	//system with invokes as in a stress test scenario) from attempting to launch
+	//the chaincode. The first one wins. Others receive an error.
+	//NOTE - this transient behavior as the chaincode is being launched is nothing
+	//new. All invokes (except the one launching the CC) will fail in any case
+	//until the container is up and registered.
+	if chaincodeSupport.launchStarted(canName) {
+		chaincodeSupport.runningChaincodes.Unlock()
+		return fmt.Errorf("Error chaincode is already launching: %s", canName)
+	}
+
+	//Chaincode is not up and is not in the process of being launched. Setup flag
+	//for launching so we can proceed to do that undisturbed by other requests on
+	//this chaincode
+	chaincodeLogger.Debugf("chaincode %s is being launched", canName)
+	chaincodeSupport.runningChaincodes.launchStarted[canName] = true
+
+	//now that chaincode launch sequence is done (whether successful or not),
+	//unset launch flag as we get out of this function. If launch was not
+	//successful (handler was not created), next invoke will try again.
+	defer func() {
+		chaincodeSupport.runningChaincodes.Lock()
+		defer chaincodeSupport.runningChaincodes.Unlock()
+
+		delete(chaincodeSupport.runningChaincodes.launchStarted, canName)
+		chaincodeLogger.Debugf("chaincode %s launch seq completed", canName)
+	}()
+
+	chaincodeSupport.runningChaincodes.Unlock()
+
+	//launch the chaincode
+
+	args, env, err := chaincodeSupport.getArgsAndEnv(cccid, cLang)
+>>>>>>> release-1.0
 	if err != nil {
 		return nil, errors.WithMessage(err, "invalid invocation")
 	}
@@ -221,7 +350,41 @@ func (cs *ChaincodeSupport) CheckInvocation(txParams *ccprovider.TransactionPara
 			return "", 0, errors.WithMessage(err, "could not get 'initialized' key")
 		}
 
+<<<<<<< HEAD
 		needsInitialization = !bytes.Equal(value, []byte(cii.Version))
+=======
+	canName := cccid.GetCanonicalName()
+	chaincodeSupport.runningChaincodes.Lock()
+	var chrte *chaincodeRTEnv
+	var ok bool
+	var err error
+	//if its in the map, there must be a connected stream...nothing to do
+	if chrte, ok = chaincodeSupport.chaincodeHasBeenLaunched(canName); ok {
+		if !chrte.handler.registered {
+			chaincodeSupport.runningChaincodes.Unlock()
+			chaincodeLogger.Debugf("premature execution - chaincode (%s) launched and waiting for registration", canName)
+			err = fmt.Errorf("premature execution - chaincode (%s) launched and waiting for registration", canName)
+			return cID, cMsg, err
+		}
+		if chrte.handler.isRunning() {
+			if chaincodeLogger.IsEnabledFor(logging.DEBUG) {
+				chaincodeLogger.Debugf("chaincode is running(no need to launch) : %s", canName)
+			}
+			chaincodeSupport.runningChaincodes.Unlock()
+			return cID, cMsg, nil
+		}
+		chaincodeLogger.Debugf("Container not in READY state(%s)...send init/ready", chrte.handler.FSM.Current())
+	} else {
+		//chaincode is not up... but is the launch process underway? this is
+		//strictly not necessary as the actual launch process will catch this
+		//(in launchAndWaitForRegister), just a bit of optimization for thundering
+		//herds
+		if chaincodeSupport.launchStarted(canName) {
+			chaincodeSupport.runningChaincodes.Unlock()
+			err = fmt.Errorf("premature execution - chaincode (%s) is being launched", canName)
+			return cID, cMsg, err
+		}
+>>>>>>> release-1.0
 	}
 
 	// Note, IsInit is a new field for v2.0 and should only be set for invocations of non-legacy chaincodes.

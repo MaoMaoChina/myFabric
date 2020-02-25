@@ -25,6 +25,7 @@ and walk through the purpose of each method in the Chaincode Shim API.
 Chaincode API
 -------------
 
+<<<<<<< HEAD
 Every chaincode program must implement the ``Chaincode`` interface whose methods
 are called in response to received transactions. You can find the reference
 documentation of the Chaincode Shim API for different languages below:
@@ -57,6 +58,19 @@ The other interface in the chaincode "shim" APIs is the ``ChaincodeStubInterface
   - `node.js <https://fabric-shim.github.io/ChaincodeStub.html>`__
   - `Java <https://hyperledger.github.io/fabric-chaincode-java/master/api/org/hyperledger/fabric/shim/ChaincodeStub.html>`_
 
+=======
+Every chaincode program must implement the
+`Chaincode interface <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#Chaincode>`_
+whose methods are called in response to received transactions.
+In particular the ``Init`` method is called when a
+chaincode receives an ``instantiate`` or ``upgrade`` transaction so that the
+chaincode may perform any necessary initialization, including initialization of
+application state. The ``Invoke`` method is called in response to receiving an
+``invoke`` transaction to process transaction proposals.
+
+The other interface in the chaincode "shim" APIs is the
+`ChaincodeStubInterface <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub>`_
+>>>>>>> release-1.0
 which is used to access and modify the ledger, and to make invocations between
 chaincodes.
 
@@ -95,11 +109,19 @@ Housekeeping
 ^^^^^^^^^^^^
 
 First, let's start with some housekeeping. As with every chaincode, it implements the
+<<<<<<< HEAD
 `Chaincode interface <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#Chaincode>`_
 in particular, ``Init`` and ``Invoke`` functions. So, let's add the Go import
 statements for the necessary dependencies for our chaincode. We'll import the
 chaincode shim package and the
 `peer protobuf package <https://godoc.org/github.com/hyperledger/fabric-protos-go/peer>`_.
+=======
+`Chaincode interface <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#Chaincode>`_
+in particular, ``Init`` and ``Invoke`` functions. So, let's add the go import
+statements for the necessary dependencies for our chaincode. We'll import the
+chaincode shim package and the
+`peer protobuf package <http://godoc.org/github.com/hyperledger/fabric/protos/peer>`_.
+>>>>>>> release-1.0
 Next, let's add a struct ``SimpleAsset`` as a receiver for Chaincode shim functions.
 
 .. code:: go
@@ -135,7 +157,11 @@ Next, we'll implement the ``Init`` function.
           no "migration" or nothing to be initialized as part of the upgrade.
 
 Next, we'll retrieve the arguments to the ``Init`` call using the
+<<<<<<< HEAD
 `ChaincodeStubInterface.GetStringArgs <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStub.GetStringArgs>`_
+=======
+`ChaincodeStubInterface.GetStringArgs <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub.GetStringArgs>`_
+>>>>>>> release-1.0
 function and check for validity. In our case, we are expecting a key-value pair.
 
   .. code:: go
@@ -154,7 +180,11 @@ function and check for validity. In our case, we are expecting a key-value pair.
 
 Next, now that we have established that the call is valid, we'll store the
 initial state in the ledger. To do this, we will call
+<<<<<<< HEAD
 `ChaincodeStubInterface.PutState <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStub.PutState>`_
+=======
+`ChaincodeStubInterface.PutState <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub.PutState>`_
+>>>>>>> release-1.0
 with the key and value passed in as the arguments. Assuming all went well,
 return a peer.Response object that indicates the initialization was a success.
 
@@ -200,7 +230,11 @@ As with the ``Init`` function above, we need to extract the arguments from the
 name of the chaincode application function to invoke. In our case, our application
 will simply have two functions: ``set`` and ``get``, that allow the value of an
 asset to be set or its current state to be retrieved. We first call
+<<<<<<< HEAD
 `ChaincodeStubInterface.GetFunctionAndParameters <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStub.GetFunctionAndParameters>`_
+=======
+`ChaincodeStubInterface.GetFunctionAndParameters <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub.GetFunctionAndParameters>`_
+>>>>>>> release-1.0
 to extract the function name and the parameters to that chaincode application
 function.
 
@@ -250,8 +284,13 @@ Implementing the Chaincode Application
 As noted, our chaincode application implements two functions that can be
 invoked via the ``Invoke`` function. Let's implement those functions now.
 Note that as we mentioned above, to access the ledger's state, we will leverage
+<<<<<<< HEAD
 the `ChaincodeStubInterface.PutState <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStub.PutState>`_
 and `ChaincodeStubInterface.GetState <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStub.GetState>`_
+=======
+the `ChaincodeStubInterface.PutState <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub.PutState>`_
+and `ChaincodeStubInterface.GetState <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#ChaincodeStub.GetState>`_
+>>>>>>> release-1.0
 functions of the chaincode shim API.
 
 .. code:: go
@@ -292,7 +331,11 @@ Pulling it All Together
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Finally, we need to add the ``main`` function, which will call the
+<<<<<<< HEAD
 `shim.Start <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#Start>`_
+=======
+`shim.Start <http://godoc.org/github.com/hyperledger/fabric/core/chaincode/shim#Start>`_
+>>>>>>> release-1.0
 function. Here's the whole chaincode program source.
 
 .. code:: go

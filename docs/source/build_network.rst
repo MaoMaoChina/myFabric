@@ -2,7 +2,11 @@ Building Your First Network
 ===========================
 
 .. note:: These instructions have been verified to work against the
+<<<<<<< HEAD
           latest stable Docker images and the pre-compiled
+=======
+          version "1.0.3" tagged Docker images and the pre-compiled
+>>>>>>> release-1.0
           setup utilities within the supplied tar file. If you run
           these commands with images or tools from the current master
           branch, it is possible that you will see configuration and panic
@@ -308,6 +312,50 @@ We won't delve into the minutiae of `x.509 certificates and public key
 infrastructure <https://en.wikipedia.org/wiki/Public_key_infrastructure>`_
 right now. If you're interested, you can peruse these topics on your own time.
 
+<<<<<<< HEAD
+=======
+Before running the tool, let's take a quick look at a snippet from the
+``crypto-config.yaml``. Pay specific attention to the "Name", "Domain"
+and "Specs" parameters under the ``OrdererOrgs`` header:
+
+.. code:: bash
+
+  OrdererOrgs:
+  #---------------------------------------------------------
+  # Orderer
+  # --------------------------------------------------------
+  - Name: Orderer
+    Domain: example.com
+    CA:
+        Country: US
+        Province: California
+        Locality: San Francisco
+    #   OrganizationalUnit: Hyperledger Fabric
+    #   StreetAddress: address for org # default nil
+    #   PostalCode: postalCode for org # default nil
+    # ------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+  # -----------------------------------------------------
+    Specs:
+      - Hostname: orderer
+  # -------------------------------------------------------
+  # "PeerOrgs" - Definition of organizations managing peer nodes
+  # ------------------------------------------------------
+  PeerOrgs:
+  # -----------------------------------------------------
+  # Org1
+  # ----------------------------------------------------
+  - Name: Org1
+    Domain: org1.example.com
+
+The naming convention for a network entity is as follows -
+"{{.Hostname}}.{{.Domain}}".  So using our ordering node as a
+reference point, we are left with an ordering node named -
+``orderer.example.com`` that is tied to an MSP ID of ``Orderer``.  This file
+contains extensive documentation on the definitions and syntax.  You can also
+refer to the :doc:`msp` documentation for a deeper dive on MSP.
+
+>>>>>>> release-1.0
 After we run the ``cryptogen`` tool, the generated certificates and keys will be
 saved to a folder titled ``crypto-config``. Note that the ``crypto-config.yaml``
 file lists five orderers as being tied to the orderer organization. While the
@@ -420,8 +468,18 @@ Then, we'll invoke the ``configtxgen`` tool to create the orderer genesis block:
 Create a Channel Configuration Transaction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+<<<<<<< HEAD
 Next, we need to create the channel transaction artifact. Be sure to replace ``$CHANNEL_NAME`` or
 set ``CHANNEL_NAME`` as an environment variable that can be used throughout these instructions:
+=======
+.. _createchanneltx:
+
+Create a Channel Configuration Transaction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Next, we need to create the channel transaction artifact. Be sure to replace $CHANNEL_NAME or
+set CHANNEL_NAME as an environment variable that can be used throughout these instructions:
+>>>>>>> release-1.0
 
 .. code:: bash
 
@@ -478,7 +536,33 @@ First let's start our network:
 If you want to see the realtime logs for your network, then do not supply the ``-d`` flag.
 If you let the logs stream, then you will need to open a second terminal to execute the CLI calls.
 
+<<<<<<< HEAD
 .. _peerenvvars:
+=======
+.. _peerenvvars::
+
+Environment variables
+^^^^^^^^^^^^^^^^^^^^^
+
+For the following CLI commands against ``peer0.org1.example.com`` to work, we need
+to preface our commands with the four environment variables given below.  These
+variables for ``peer0.org1.example.com`` are baked into the CLI container,
+therefore we can operate without passing them.  **HOWEVER**, if you want to send
+calls to other peers or the orderer, then you will need to provide these
+values accordingly.  Inspect the ``docker-compose-base.yaml`` for the specific
+paths:
+
+.. code:: bash
+
+    # Environment variables for PEER0
+
+    CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+    CORE_PEER_ADDRESS=peer0.org1.example.com:7051
+    CORE_PEER_LOCALMSPID="Org1MSP"
+    CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+
+.. _createandjoin:
+>>>>>>> release-1.0
 
 Create & Join Channel
 ^^^^^^^^^^^^^^^^^^^^^
@@ -502,6 +586,7 @@ If successful you should see the following:
 
         root@0d78bb69300d:/opt/gopath/src/github.com/hyperledger/fabric/peer#
 
+<<<<<<< HEAD
 For the following CLI commands against ``peer0.org1.example.com`` to work, we need
 to preface our commands with the four environment variables given below.  These
 variables for ``peer0.org1.example.com`` are baked into the CLI container,
@@ -519,6 +604,8 @@ example below when you make any CLI calls:
     CORE_PEER_LOCALMSPID="Org1MSP"
     CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
 
+=======
+>>>>>>> release-1.0
 Next, we are going to pass in the generated channel configuration transaction
 artifact that we created in the :ref:`createchanneltx` section (we called
 it ``channel.tx``) to the orderer as part of the create channel request.
@@ -542,6 +629,7 @@ case, less than 250 characters long and match the regular expression
 
         peer channel create -o orderer.example.com:7050 -c $CHANNEL_NAME -f ./channel-artifacts/channel.tx --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
+<<<<<<< HEAD
 .. note:: Notice the ``--cafile`` that we pass as part of this command.  It is
           the local path to the orderer's root cert, allowing us to verify the
           TLS handshake.
@@ -550,6 +638,14 @@ This command returns a genesis block - ``<CHANNEL_NAME.block>`` - which we will 
 It contains the configuration information specified in ``channel.tx``  If you have not
 made any modifications to the default channel name, then the command will return you a
 proto titled ``mychannel.block``.
+=======
+.. note:: Notice the ``-- cafile`` that we pass as part of this command.  It is
+          the local path to the orderer's root cert, allowing us to verify the
+          TLS handshake.
+
+This command returns a genesis block - ``<channel-ID.block>`` - which we will use to join the channel.
+It contains the configuration information specified in ``channel.tx``.
+>>>>>>> release-1.0
 
 .. note:: You will remain in the CLI container for the remainder of
           these manual commands. You must also remember to preface all commands
@@ -1307,7 +1403,11 @@ The output should display the two marbles owned by ``jerry``:
 
 Why CouchDB
 -------------
+<<<<<<< HEAD
 CouchDB is a kind of NoSQL solution. It is a document-oriented database where document fields are stored as key-value maps. Fields can be either a simple key-value pair, list, or map.
+=======
+CouchDB is a kind of NoSQL solution. It is a document oriented database where document fields are stored as key-value mpas. Fields can be either a simple key/value pair, list, or map.
+>>>>>>> release-1.0
 In addition to keyed/composite-key/key-range queries which are supported by LevelDB, CouchDB also supports full data rich queries capability, such as non-key queries against the whole blockchain data,
 since its data content is stored in JSON format and fully queryable. Therefore, CouchDB can meet chaincode, auditing, reporting requirements for many use cases that not supported by LevelDB.
 
@@ -1375,6 +1475,7 @@ Troubleshooting
    make sure you have properly updated the channel name and chaincode name.
    There are placeholder values in the supplied sample commands.
 
+
 -  If you see the below error:
 
    .. code:: bash
@@ -1428,6 +1529,7 @@ Troubleshooting
    You will see the following message:
 
    .. code:: bash
+<<<<<<< HEAD
 
       WARNING! This will remove all networks not used by at least one container.
       Are you sure you want to continue? [y/N]
@@ -1455,6 +1557,13 @@ Troubleshooting
    .. code:: bash
 
       :set ff=unix
+=======
+
+      WARNING! This will remove all networks not used by at least one container.
+      Are you sure you want to continue? [y/N]
+
+   Select ``y``.
+>>>>>>> release-1.0
 
 .. note:: If you continue to see errors, share your logs on the
           **fabric-questions** channel on

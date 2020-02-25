@@ -11,8 +11,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+<<<<<<< HEAD
 	"net"
 	"strings"
+=======
+	"strconv"
+>>>>>>> release-1.0
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -48,8 +52,15 @@ import (
 	"github.com/hyperledger/fabric/gossip/state/mocks"
 	gossiputil "github.com/hyperledger/fabric/gossip/util"
 	gutil "github.com/hyperledger/fabric/gossip/util"
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric/protoutil"
 	"github.com/onsi/gomega/gbytes"
+=======
+	pcomm "github.com/hyperledger/fabric/protos/common"
+	proto "github.com/hyperledger/fabric/protos/gossip"
+	"github.com/op/go-logging"
+	"github.com/spf13/viper"
+>>>>>>> release-1.0
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -69,7 +80,11 @@ type joinChanMsg struct {
 
 func init() {
 	gutil.SetupTestLogging()
+<<<<<<< HEAD
 	factory.InitFactories(nil)
+=======
+	logging.SetLevel(logging.DEBUG, gutil.LoggingStateModule)
+>>>>>>> release-1.0
 }
 
 // SequenceNumber returns the sequence number of the block that the message
@@ -171,7 +186,11 @@ type peerNodeGossipSupport interface {
 // communication module, gossip and state transfer
 type peerNode struct {
 	port   int
+<<<<<<< HEAD
 	g      peerNodeGossipSupport
+=======
+	g      gossip.Gossip
+>>>>>>> release-1.0
 	s      *GossipStateProviderImpl
 	cs     *cryptoServiceMock
 	commit committer.Committer
@@ -186,6 +205,7 @@ func (node *peerNode) shutdown() {
 }
 
 type mockCommitter struct {
+<<<<<<< HEAD
 	*mock.Mock
 	sync.Mutex
 }
@@ -205,6 +225,17 @@ func (mc *mockCommitter) CommitLegacy(blockAndPvtData *ledger.BlockAndPvtData, c
 	m := mc.Mock
 	mc.Unlock()
 	m.Called(blockAndPvtData.Block)
+=======
+	mock.Mock
+	sync.Mutex
+}
+
+func (mc *mockCommitter) Commit(block *pcomm.Block) error {
+	mc.Lock()
+	m := mc.Mock
+	mc.Unlock()
+	m.Called(block)
+>>>>>>> release-1.0
 	return nil
 }
 
@@ -217,6 +248,7 @@ func (mc *mockCommitter) LedgerHeight() (uint64, error) {
 	mc.Lock()
 	m := mc.Mock
 	mc.Unlock()
+<<<<<<< HEAD
 	args := m.Called()
 	if args.Get(1) == nil {
 		return args.Get(0).(uint64), nil
@@ -227,6 +259,12 @@ func (mc *mockCommitter) LedgerHeight() (uint64, error) {
 func (mc *mockCommitter) DoesPvtDataInfoExistInLedger(blkNum uint64) (bool, error) {
 	args := mc.Called(blkNum)
 	return args.Get(0).(bool), args.Error(1)
+=======
+	if m.Called().Get(1) == nil {
+		return m.Called().Get(0).(uint64), nil
+	}
+	return m.Called().Get(0).(uint64), m.Called().Get(1).(error)
+>>>>>>> release-1.0
 }
 
 func (mc *mockCommitter) GetBlocks(blockSeqs []uint64) []*pcomm.Block {
@@ -464,12 +502,21 @@ func TestNilDirectMsg(t *testing.T) {
 	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
 	g := &mocks.GossipMock{}
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+<<<<<<< HEAD
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	p := newPeerNodeWithGossip(0, mc, noopPeerIdentityAcceptor, g)
 	defer p.shutdown()
 	p.s.handleStateRequest(nil)
 	p.s.directMessage(nil)
 	sMsg, _ := protoext.NoopSign(p.s.stateRequestMessage(uint64(10), uint64(8)))
+=======
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	p := newPeerNodeWithGossip(newGossipConfig(0), mc, noopPeerIdentityAcceptor, g)
+	defer p.shutdown()
+	p.s.handleStateRequest(nil)
+	p.s.directMessage(nil)
+	sMsg, _ := p.s.stateRequestMessage(uint64(10), uint64(8)).NoopSign()
+>>>>>>> release-1.0
 	req := &comm.ReceivedMessageImpl{
 		SignedGossipMessage: sMsg,
 	}
@@ -477,6 +524,7 @@ func TestNilDirectMsg(t *testing.T) {
 }
 
 func TestNilAddPayload(t *testing.T) {
+<<<<<<< HEAD
 	t.Parallel()
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
@@ -484,6 +532,14 @@ func TestNilAddPayload(t *testing.T) {
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	p := newPeerNodeWithGossip(0, mc, noopPeerIdentityAcceptor, g)
+=======
+	mc := &mockCommitter{}
+	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
+	g := &mocks.GossipMock{}
+	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	p := newPeerNodeWithGossip(newGossipConfig(0), mc, noopPeerIdentityAcceptor, g)
+>>>>>>> release-1.0
 	defer p.shutdown()
 	err := p.s.AddPayload(nil)
 	assert.Error(t, err)
@@ -491,6 +547,7 @@ func TestNilAddPayload(t *testing.T) {
 }
 
 func TestAddPayloadLedgerUnavailable(t *testing.T) {
+<<<<<<< HEAD
 	t.Parallel()
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
@@ -498,15 +555,30 @@ func TestAddPayloadLedgerUnavailable(t *testing.T) {
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	p := newPeerNodeWithGossip(0, mc, noopPeerIdentityAcceptor, g)
+=======
+	mc := &mockCommitter{}
+	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
+	g := &mocks.GossipMock{}
+	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	p := newPeerNodeWithGossip(newGossipConfig(0), mc, noopPeerIdentityAcceptor, g)
+>>>>>>> release-1.0
 	defer p.shutdown()
 	// Simulate a problem in the ledger
 	failedLedger := mock.Mock{}
 	failedLedger.On("LedgerHeight", mock.Anything).Return(uint64(0), errors.New("cannot query ledger"))
 	mc.Lock()
+<<<<<<< HEAD
 	mc.Mock = &failedLedger
 	mc.Unlock()
 
 	rawblock := protoutil.NewBlock(uint64(1), []byte{})
+=======
+	mc.Mock = failedLedger
+	mc.Unlock()
+
+	rawblock := pcomm.NewBlock(uint64(1), []byte{})
+>>>>>>> release-1.0
 	b, _ := pb.Marshal(rawblock)
 	err := p.s.AddPayload(&proto.Payload{
 		SeqNum: uint64(1),
@@ -522,6 +594,7 @@ func TestLargeBlockGap(t *testing.T) {
 	// than itself (500 blocks higher).
 	// The peer needs to ask blocks in a way such that the size of the payload buffer
 	// never rises above a certain threshold.
+<<<<<<< HEAD
 	t.Parallel()
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	blocksPassedToLedger := make(chan uint64, 200)
@@ -532,13 +605,30 @@ func TestLargeBlockGap(t *testing.T) {
 	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
 	mc.On("DoesPvtDataInfoExistInLedger", mock.Anything).Return(false, nil)
 	g := &mocks.GossipMock{}
+=======
+
+	mc := &mockCommitter{}
+	blocksPassedToLedger := make(chan uint64, 200)
+	mc.On("Commit", mock.Anything).Run(func(arg mock.Arguments) {
+		blocksPassedToLedger <- arg.Get(0).(*pcomm.Block).Header.Number
+	})
+	msgsFromPeer := make(chan proto.ReceivedMessage)
+	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
+	g := &mocks.GossipMock{}
+	metaState := NewNodeMetastate(500)
+	md, _ := metaState.Bytes()
+>>>>>>> release-1.0
 	membership := []discovery.NetworkMember{
 		{
 			PKIid:    common.PKIidType("a"),
 			Endpoint: "a",
+<<<<<<< HEAD
 			Properties: &proto.Properties{
 				LedgerHeight: 500,
 			},
+=======
+			Metadata: md,
+>>>>>>> release-1.0
 		}}
 	g.On("PeersOfChannel", mock.Anything).Return(membership)
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
@@ -550,14 +640,22 @@ func TestLargeBlockGap(t *testing.T) {
 		// Construct a skeleton for the response
 		res := &proto.GossipMessage{
 			Nonce:   msg.Nonce,
+<<<<<<< HEAD
 			Channel: []byte("testchannelid"),
+=======
+			Channel: []byte(util.GetTestChainID()),
+>>>>>>> release-1.0
 			Content: &proto.GossipMessage_StateResponse{
 				StateResponse: &proto.RemoteStateResponse{},
 			},
 		}
 		// Populate the response with payloads according to what the peer asked
 		for seq := req.StartSeqNum; seq <= req.EndSeqNum; seq++ {
+<<<<<<< HEAD
 			rawblock := protoutil.NewBlock(seq, []byte{})
+=======
+			rawblock := pcomm.NewBlock(seq, []byte{})
+>>>>>>> release-1.0
 			b, _ := pb.Marshal(rawblock)
 			payload := &proto.Payload{
 				SeqNum: seq,
@@ -566,12 +664,20 @@ func TestLargeBlockGap(t *testing.T) {
 			res.GetStateResponse().Payloads = append(res.GetStateResponse().Payloads, payload)
 		}
 		// Finally, send the response down the channel the peer expects to receive it from
+<<<<<<< HEAD
 		sMsg, _ := protoext.NoopSign(res)
+=======
+		sMsg, _ := res.NoopSign()
+>>>>>>> release-1.0
 		msgsFromPeer <- &comm.ReceivedMessageImpl{
 			SignedGossipMessage: sMsg,
 		}
 	})
+<<<<<<< HEAD
 	p := newPeerNodeWithGossip(0, mc, noopPeerIdentityAcceptor, g)
+=======
+	p := newPeerNodeWithGossip(newGossipConfig(0), mc, noopPeerIdentityAcceptor, g)
+>>>>>>> release-1.0
 	defer p.shutdown()
 
 	// Process blocks at a speed of 20 Millisecond for each block.
@@ -594,6 +700,7 @@ func TestOverPopulation(t *testing.T) {
 	// with a gap in between, and ensure that the payload buffer
 	// rejects blocks starting if the distance between the ledger height to the latest
 	// block it contains is bigger than defMaxBlockDistance.
+<<<<<<< HEAD
 	t.Parallel()
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	blocksPassedToLedger := make(chan uint64, 10)
@@ -606,11 +713,28 @@ func TestOverPopulation(t *testing.T) {
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	p := newPeerNode(0, mc, noopPeerIdentityAcceptor)
+=======
+
+	mc := &mockCommitter{}
+	blocksPassedToLedger := make(chan uint64, 10)
+	mc.On("Commit", mock.Anything).Run(func(arg mock.Arguments) {
+		blocksPassedToLedger <- arg.Get(0).(*pcomm.Block).Header.Number
+	})
+	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
+	g := &mocks.GossipMock{}
+	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	p := newPeerNode(newGossipConfig(0), mc, noopPeerIdentityAcceptor)
+>>>>>>> release-1.0
 	defer p.shutdown()
 
 	// Add some blocks in a sequential manner and make sure it works
 	for i := 1; i <= 4; i++ {
+<<<<<<< HEAD
 		rawblock := protoutil.NewBlock(uint64(i), []byte{})
+=======
+		rawblock := pcomm.NewBlock(uint64(i), []byte{})
+>>>>>>> release-1.0
 		b, _ := pb.Marshal(rawblock)
 		assert.NoError(t, p.s.addPayload(&proto.Payload{
 			SeqNum: uint64(i),
@@ -621,7 +745,11 @@ func TestOverPopulation(t *testing.T) {
 	// Add payloads from 10 to defMaxBlockDistance, while we're missing blocks [5,9]
 	// Should succeed
 	for i := 10; i <= defMaxBlockDistance; i++ {
+<<<<<<< HEAD
 		rawblock := protoutil.NewBlock(uint64(i), []byte{})
+=======
+		rawblock := pcomm.NewBlock(uint64(i), []byte{})
+>>>>>>> release-1.0
 		b, _ := pb.Marshal(rawblock)
 		assert.NoError(t, p.s.addPayload(&proto.Payload{
 			SeqNum: uint64(i),
@@ -632,7 +760,11 @@ func TestOverPopulation(t *testing.T) {
 	// Add payloads from defMaxBlockDistance + 2 to defMaxBlockDistance * 10
 	// Should fail.
 	for i := defMaxBlockDistance + 1; i <= defMaxBlockDistance*10; i++ {
+<<<<<<< HEAD
 		rawblock := protoutil.NewBlock(uint64(i), []byte{})
+=======
+		rawblock := pcomm.NewBlock(uint64(i), []byte{})
+>>>>>>> release-1.0
 		b, _ := pb.Marshal(rawblock)
 		assert.Error(t, p.s.addPayload(&proto.Payload{
 			SeqNum: uint64(i),
@@ -658,6 +790,7 @@ func TestBlockingEnqueue(t *testing.T) {
 	// Scenario: In parallel, get blocks from gossip and from the orderer.
 	// The blocks from the orderer we get are X2 times the amount of blocks from gossip.
 	// The blocks we get from gossip are random indices, to maximize disruption.
+<<<<<<< HEAD
 	t.Parallel()
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	blocksPassedToLedger := make(chan uint64, 10)
@@ -670,6 +803,18 @@ func TestBlockingEnqueue(t *testing.T) {
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	p := newPeerNode(0, mc, noopPeerIdentityAcceptor)
+=======
+	mc := &mockCommitter{}
+	blocksPassedToLedger := make(chan uint64, 10)
+	mc.On("Commit", mock.Anything).Run(func(arg mock.Arguments) {
+		blocksPassedToLedger <- arg.Get(0).(*pcomm.Block).Header.Number
+	})
+	mc.On("LedgerHeight", mock.Anything).Return(uint64(1), nil)
+	g := &mocks.GossipMock{}
+	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	p := newPeerNode(newGossipConfig(0), mc, noopPeerIdentityAcceptor)
+>>>>>>> release-1.0
 	defer p.shutdown()
 
 	numBlocksReceived := 500
@@ -677,7 +822,11 @@ func TestBlockingEnqueue(t *testing.T) {
 	// Get a block from the orderer every 1ms
 	go func() {
 		for i := 1; i <= numBlocksReceived; i++ {
+<<<<<<< HEAD
 			rawblock := protoutil.NewBlock(uint64(i), []byte{})
+=======
+			rawblock := pcomm.NewBlock(uint64(i), []byte{})
+>>>>>>> release-1.0
 			b, _ := pb.Marshal(rawblock)
 			block := &proto.Payload{
 				SeqNum: uint64(i),
@@ -693,7 +842,11 @@ func TestBlockingEnqueue(t *testing.T) {
 		rand.Seed(time.Now().UnixNano())
 		for i := 1; i <= numBlocksReceived/2; i++ {
 			blockSeq := rand.Intn(numBlocksReceived)
+<<<<<<< HEAD
 			rawblock := protoutil.NewBlock(uint64(blockSeq), []byte{})
+=======
+			rawblock := pcomm.NewBlock(uint64(blockSeq), []byte{})
+>>>>>>> release-1.0
 			b, _ := pb.Marshal(rawblock)
 			block := &proto.Payload{
 				SeqNum: uint64(blockSeq),
@@ -707,10 +860,16 @@ func TestBlockingEnqueue(t *testing.T) {
 	for {
 		receivedBlock := <-blocksPassedToLedger
 		receivedBlockCount++
+<<<<<<< HEAD
 		m := &mock.Mock{}
 		m.On("LedgerHeight", mock.Anything).Return(receivedBlock, nil)
 		m.On("DoesPvtDataInfoExistInLedger", mock.Anything).Return(false, nil)
 		m.On("CommitLegacy", mock.Anything).Run(func(arg mock.Arguments) {
+=======
+		m := mock.Mock{}
+		m.On("LedgerHeight", mock.Anything).Return(receivedBlock, nil)
+		m.On("Commit", mock.Anything).Run(func(arg mock.Arguments) {
+>>>>>>> release-1.0
 			blocksPassedToLedger <- arg.Get(0).(*pcomm.Block).Header.Number
 		})
 		mc.Lock()
@@ -721,6 +880,7 @@ func TestBlockingEnqueue(t *testing.T) {
 			break
 		}
 		time.Sleep(time.Millisecond * 10)
+<<<<<<< HEAD
 	}
 }
 
@@ -791,6 +951,10 @@ func TestHaltChainProcessing(t *testing.T) {
 	assertLogged(t, buf, "Got error while committing")
 	assertLogged(t, buf, "Aborting chain processing")
 	assertLogged(t, buf, "foobar")
+=======
+		t.Log("got block", receivedBlock)
+	}
+>>>>>>> release-1.0
 }
 
 func TestFailures(t *testing.T) {
@@ -799,7 +963,11 @@ func TestFailures(t *testing.T) {
 	mc.On("LedgerHeight", mock.Anything).Return(uint64(0), nil)
 	g := &mocks.GossipMock{}
 	g.On("Accept", mock.Anything, false).Return(make(<-chan *proto.GossipMessage), nil)
+<<<<<<< HEAD
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
+=======
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+>>>>>>> release-1.0
 	g.On("PeersOfChannel", mock.Anything).Return([]discovery.NetworkMember{})
 	assert.Panics(t, func() {
 		newPeerNodeWithGossip(0, mc, noopPeerIdentityAcceptor, g)
@@ -863,9 +1031,15 @@ func TestGossipReception(t *testing.T) {
 	g.On("Accept", mock.Anything, false).Return(rmc, nil).Run(func(_ mock.Arguments) {
 		signalChan <- struct{}{}
 	})
+<<<<<<< HEAD
 	g.On("Accept", mock.Anything, true).Return(nil, make(chan protoext.ReceivedMessage))
 	g.On("PeersOfChannel", mock.Anything).Return([]discovery.NetworkMember{})
 	mc := &mockCommitter{Mock: &mock.Mock{}}
+=======
+	g.On("Accept", mock.Anything, true).Return(nil, make(chan proto.ReceivedMessage))
+	g.On("PeersOfChannel", mock.Anything).Return([]discovery.NetworkMember{})
+	mc := &mockCommitter{}
+>>>>>>> release-1.0
 	receivedChan := make(chan struct{})
 	mc.On("CommitLegacy", mock.Anything).Run(func(arguments mock.Arguments) {
 		block := arguments.Get(0).(*pcomm.Block)

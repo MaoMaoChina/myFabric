@@ -20,6 +20,114 @@ import (
 
 var putilsLogger = flogging.MustGetLogger("protoutils")
 
+<<<<<<< HEAD
+=======
+// validateChaincodeProposalMessage checks the validity of a Proposal message of type CHAINCODE
+func validateChaincodeProposalMessage(prop *pb.Proposal, hdr *common.Header) (*pb.ChaincodeHeaderExtension, error) {
+	if prop == nil || hdr == nil {
+		return nil, errors.New("Nil arguments")
+	}
+
+	putilsLogger.Debugf("validateChaincodeProposalMessage starts for proposal %p, header %p", prop, hdr)
+
+	// 4) based on the header type (assuming it's CHAINCODE), look at the extensions
+	chaincodeHdrExt, err := utils.GetChaincodeHeaderExtension(hdr)
+	if err != nil {
+		return nil, errors.New("Invalid header extension for type CHAINCODE")
+	}
+
+	if chaincodeHdrExt.ChaincodeId == nil {
+		return nil, errors.New("ChaincodeHeaderExtension.ChaincodeId is nil")
+	}
+
+	putilsLogger.Debugf("validateChaincodeProposalMessage info: header extension references chaincode %s", chaincodeHdrExt.ChaincodeId)
+
+	//    - ensure that the chaincodeID is correct (?)
+	// TODO: should we even do this? If so, using which interface?
+
+	//    - ensure that the visibility field has some value we understand
+	// currently the fabric only supports full visibility: this means that
+	// there are no restrictions on which parts of the proposal payload will
+	// be visible in the final transaction; this default approach requires
+	// no additional instructions in the PayloadVisibility field which is
+	// therefore expected to be nil; however the fabric may be extended to
+	// encode more elaborate visibility mechanisms that shall be encoded in
+	// this field (and handled appropriately by the peer)
+	if chaincodeHdrExt.PayloadVisibility != nil {
+		return nil, errors.New("Invalid payload visibility field")
+	}
+
+	return chaincodeHdrExt, nil
+}
+
+// ValidateProposalMessage checks the validity of a SignedProposal message
+// this function returns Header and ChaincodeHeaderExtension messages since they
+// have been unmarshalled and validated
+func ValidateProposalMessage(signedProp *pb.SignedProposal) (*pb.Proposal, *common.Header, *pb.ChaincodeHeaderExtension, error) {
+	if signedProp == nil {
+		return nil, nil, nil, errors.New("Nil arguments")
+	}
+
+	putilsLogger.Debugf("ValidateProposalMessage starts for signed proposal %p", signedProp)
+
+	// extract the Proposal message from signedProp
+	prop, err := utils.GetProposal(signedProp.ProposalBytes)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// 1) look at the ProposalHeader
+	hdr, err := utils.GetHeader(prop.Header)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// validate the header
+	chdr, shdr, err := validateCommonHeader(hdr)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// validate the signature
+	err = checkSignatureFromCreator(shdr.Creator, signedProp.Signature, signedProp.ProposalBytes, chdr.ChannelId)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// Verify that the transaction ID has been computed properly.
+	// This check is needed to ensure that the lookup into the ledger
+	// for the same TxID catches duplicates.
+	err = utils.CheckProposalTxID(
+		chdr.TxId,
+		shdr.Nonce,
+		shdr.Creator)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	// continue the validation in a way that depends on the type specified in the header
+	switch common.HeaderType(chdr.Type) {
+	case common.HeaderType_CONFIG:
+		//which the types are different the validation is the same
+		//viz, validate a proposal to a chaincode. If we need other
+		//special validation for confguration, we would have to implement
+		//special validation
+		fallthrough
+	case common.HeaderType_ENDORSER_TRANSACTION:
+		// validation of the proposal message knowing it's of type CHAINCODE
+		chaincodeHdrExt, err := validateChaincodeProposalMessage(prop, hdr)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+
+		return prop, hdr, chaincodeHdrExt, err
+	default:
+		//NOTE : we proably need a case
+		return nil, nil, nil, fmt.Errorf("Unsupported proposal type %d", common.HeaderType(chdr.Type))
+	}
+}
+
+>>>>>>> release-1.0
 // given a creator, a message and a signature,
 // this function returns nil if the creator
 // is a valid cert and the signature is valid

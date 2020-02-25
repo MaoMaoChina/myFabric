@@ -26,16 +26,27 @@ func (g *GossipMock) SelfMembershipInfo() discovery.NetworkMember {
 	panic("implement me")
 }
 
+<<<<<<< HEAD
 func (g *GossipMock) SelfChannelInfo(common.ChannelID) *protoext.SignedGossipMessage {
 	panic("implement me")
+=======
+func (g *GossipMock) Send(msg *proto.GossipMessage, peers ...*comm.RemotePeer) {
+	g.Called(msg, peers)
+>>>>>>> release-1.0
 }
 
 func (*GossipMock) PeerFilter(channel common.ChannelID, messagePredicate api.SubChannelSelectionCriteria) (filter.RoutingFilter, error) {
 	panic("implement me")
 }
 
+<<<<<<< HEAD
 func (g *GossipMock) SuspectPeers(s api.PeerSuspector) {
 	g.Called(s)
+=======
+func (g *GossipMock) PeersOfChannel(chainID common.ChainID) []discovery.NetworkMember {
+	args := g.Called(chainID)
+	return args.Get(0).([]discovery.NetworkMember)
+>>>>>>> release-1.0
 }
 
 // UpdateLedgerHeight updates the ledger height the peer
@@ -78,7 +89,11 @@ func (g *GossipMock) Gossip(msg *proto.GossipMessage) {
 func (g *GossipMock) Accept(acceptor common.MessageAcceptor, passThrough bool) (<-chan *proto.GossipMessage, <-chan protoext.ReceivedMessage) {
 	args := g.Called(acceptor, passThrough)
 	if args.Get(0) == nil {
+<<<<<<< HEAD
 		return nil, args.Get(1).(chan protoext.ReceivedMessage)
+=======
+		return nil, args.Get(1).(chan proto.ReceivedMessage)
+>>>>>>> release-1.0
 	}
 	return args.Get(0).(<-chan *proto.GossipMessage), nil
 }

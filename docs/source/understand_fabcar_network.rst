@@ -23,8 +23,13 @@ role an application plays.
 Components of the Fabcar Network
 --------------------------------
 
+<<<<<<< HEAD
 Fabcar uses the "first-network" sample as its limited development network. It
 consists of four peer nodes configured to use CouchDB as the state database,
+=======
+Fabcar uses the "basic-network" sample as its limited development network. It
+consists of a single peer node configured to use CouchDB as the state database,
+>>>>>>> release-1.0
 a single "solo" ordering node, a certificate authority (CA) and a CLI container
 for executing commands.
 
@@ -33,10 +38,16 @@ For detailed information on these components and what they do, refer to
 
 These components are bootstrapped by the ``./startFabric.sh`` script, which
 also:
+<<<<<<< HEAD
 
 * creates a channel and joins the peer to the channel
 * installs the ``fabcar`` smart contract onto the peer's file system and instantiates it on the channel (instantiate starts a container)
 * calls the ``initLedger`` function to populate the channel ledger with 10 unique cars
+=======
+          * creates a channel and joins the peer to the channel
+          * installs the ``fabcar`` smart contract onto the peer's file system and instantiates it on the channel (instantiate starts a container)
+          * calls the ``initLedger`` function to populate the channel ledger with 10 unique cars
+>>>>>>> release-1.0
 
 These operations would typically be done by an organizational or peer admin.
 The script uses the CLI to execute these commands, however there is support in
@@ -53,7 +64,11 @@ where the name is ``fabcar``, the version is ``1.0``, and the peer it is running
 against is ``dev-peer0.org1.example.com``.
 
 APIs are accessible with an SDK. For purposes of this exercise, we're using the
+<<<<<<< HEAD
 `Hyperledger Fabric Node SDK <https://hyperledger.github.io/fabric-sdk-node/>`__ though
+=======
+`Hyperledger Fabric Node SDK <https://fabric-sdk-node.github.io/>`__ though
+>>>>>>> release-1.0
 there is also a Java SDK and CLI that can be used to drive transactions.
 SDKs encapsulate all access to the ledger by allowing an application to
 communicate with smart contracts, run queries, or receive ledger updates. These APIs use
@@ -72,7 +87,11 @@ Query
 
 Queries are the simplest kind of invocation: a call and response.  The most common query
 will interrogate the state database for the current value associated
+<<<<<<< HEAD
 with a key (``GetState``).  However, the `chaincode shim interface <https://godoc.org/github.com/hyperledger/fabric-chaincode-go/shim#ChaincodeStubInterface>`__
+=======
+with a key (``GetState``).  However, the `chaincode shim interface <https://github.com/hyperledger/fabric/blob/release/core/chaincode/shim/interfaces.go>`__
+>>>>>>> release-1.0
 also allows for different types of ``Get`` calls (e.g. ``GetHistoryForKey`` or ``GetCreator``).
 
 In our example, the peer holds a hash chain of all transactions and maintains
@@ -101,9 +120,17 @@ to the ordering service by calling the ``channel.sendTransaction`` API. The
 ordering service bundles the transaction into a block and delivers it to all
 peers on a channel for validation (the Fabcar network has only one peer and one channel).
 
+<<<<<<< HEAD
 Finally the application uses the :doc:`peer_event_services` to register for events
 associated with a specific transaction ID so that the application can be notified
 about the fate of a transaction (i.e. valid or invalid).
+=======
+Finally the application uses two event handler APIs: ``eh.setPeerAddr`` to
+connect to the peer's event listener port and ``eh.registerTxEvent`` to
+register for events associated with a specific transaction ID. The
+``eh.registerTxEvent`` API allows the application to be notified about the fate
+of a transaction (i.e. valid or invalid).
+>>>>>>> release-1.0
 
 For More Information
 --------------------
@@ -117,7 +144,11 @@ For more information on how endorsement policies work, check out
 :doc:`endorsement-policies`.
 
 For a deeper dive into the architecture of Hyperledger Fabric, check out
+<<<<<<< HEAD
 :doc:`architecture`.
+=======
+:doc:`arch-deep-dive`.
+>>>>>>> release-1.0
 
 .. Licensed under Creative Commons Attribution 4.0 International License
    https://creativecommons.org/licenses/by/4.0/

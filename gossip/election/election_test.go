@@ -390,7 +390,11 @@ func TestYield(t *testing.T) {
 	}
 	// A new leader is elected, and it is not p0
 	waitForBoolFunc(t, ensureP0isNotAleader, true)
+<<<<<<< HEAD
 	time.Sleep(testLeaderAliveThreshold * 2)
+=======
+	time.Sleep(getLeaderAliveThreshold() * 2)
+>>>>>>> release-1.0
 	// After a while, p0 doesn't restore its leadership status
 	waitForBoolFunc(t, ensureP0isNotAleader, true)
 }

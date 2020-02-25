@@ -19,9 +19,30 @@ import (
 
 var cauthdslLogger = flogging.MustGetLogger("cauthdsl")
 
+<<<<<<< HEAD
 // compile recursively builds a go evaluatable function corresponding to the policy specified, remember to call deduplicate on identities before
 // passing them to this function for evaluation
 func compile(policy *cb.SignaturePolicy, identities []*mb.MSPPrincipal) (func([]msp.Identity, []bool) bool, error) {
+=======
+// deduplicate removes any duplicated identities while otherwise preserving identity order
+func deduplicate(sds []*cb.SignedData) []*cb.SignedData {
+	ids := make(map[string]struct{})
+	result := make([]*cb.SignedData, 0, len(sds))
+	for i, sd := range sds {
+		if _, ok := ids[string(sd.Identity)]; ok {
+			cauthdslLogger.Warningf("De-duplicating identity %x at index %d in signature set", sd.Identity, i)
+		} else {
+			result = append(result, sd)
+			ids[string(sd.Identity)] = struct{}{}
+		}
+	}
+	return result
+}
+
+// compile recursively builds a go evaluatable function corresponding to the policy specified, remember to call deduplicate on identities before
+// passing them to this function for evaluation
+func compile(policy *cb.SignaturePolicy, identities []*mb.MSPPrincipal, deserializer msp.IdentityDeserializer) (func([]*cb.SignedData, []bool) bool, error) {
+>>>>>>> release-1.0
 	if policy == nil {
 		return nil, fmt.Errorf("Empty policy element")
 	}

@@ -29,11 +29,19 @@ Docker and Docker Compose
 You will need the following installed on the platform on which you will be
 operating, or developing on (or for), Hyperledger Fabric:
 
+<<<<<<< HEAD
   - MacOSX, \*nix, or Windows 10: `Docker <https://www.docker.com/get-docker>`__
     Docker version 17.06.2-ce or greater is required.
   - Older versions of Windows: `Docker
     Toolbox <https://docs.docker.com/toolbox/toolbox_install_windows/>`__ -
     again, Docker version Docker 17.06.2-ce or greater is required.
+=======
+  - MacOSX, *nix, or Windows 10: `Docker <https://www.docker.com/products/overview>`__
+    Docker version 17.03.0-ce or greater is required.
+  - Older versions of Windows: `Docker
+    Toolbox <https://docs.docker.com/toolbox/toolbox_install_windows/>`__ -
+    again, Docker version Docker 17.03.0-ce or greater is required.
+>>>>>>> release-1.0
 
 You can check the version of Docker you have installed with the following
 command from a terminal prompt:
@@ -95,6 +103,12 @@ First, you must set the environment variable ``GOPATH`` to point at the
 Go workspace containing the downloaded Fabric code base, with something like:
 
 .. code:: bash
+<<<<<<< HEAD
+=======
+
+  echo $GOPATH
+  /Users/xxx/go
+>>>>>>> release-1.0
 
   export GOPATH=$HOME/go
 
@@ -160,14 +174,23 @@ Check your version(s):
 Windows extras
 --------------
 
+<<<<<<< HEAD
 If you are developing on Windows 7, you will want to work within the
 Docker Quickstart Terminal which uses `Git Bash
 <https://git-scm.com/downloads>`__ and provides a better alternative
 to the built-in Windows shell.
+=======
+If you are developing on Windows, you will want to work within the
+Docker Quickstart Terminal which provides a better alternative to the
+built-in Windows such as `Git Bash <https://git-scm.com/downloads>`__
+which you typically get as part of installing Docker Toolbox on
+Windows 7.
+>>>>>>> release-1.0
 
 However experience has shown this to be a poor development environment
 with limited functionality. It is suitable to run Docker based
 scenarios, such as :doc:`getting_started`, but you may have
+<<<<<<< HEAD
 difficulties with operations involving the ``make`` and ``docker``
 commands.
 
@@ -176,6 +199,9 @@ may use the Windows PowerShell. However, for the ``binaries``
 command to succeed you will still need to have the ``uname`` command
 available. You can get it as part of Git but beware that only the
 64bit version is supported.
+=======
+difficulties with operations involving the ``make`` command.
+>>>>>>> release-1.0
 
 Before running any ``git clone`` commands, run the following commands:
 

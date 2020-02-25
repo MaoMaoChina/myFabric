@@ -369,8 +369,13 @@ func (g *GossipService) InitializeChannel(channelID string, ordererSource *order
 			g.leaderElection[channelID] = g.newLeaderElectionComponent(channelID, g.onStatusChangeFactory(channelID,
 				support.Committer), g.metrics.ElectionMetrics)
 		} else if isStaticOrgLeader {
+<<<<<<< HEAD
 			logger.Debug("This peer is configured to connect to ordering service for blocks delivery, channel", channelID)
 			g.deliveryService[channelID].StartDeliverForChannel(channelID, support.Committer, func() {})
+=======
+			logger.Debug("This peer is configured to connect to ordering service for blocks delivery, channel", chainID)
+			g.deliveryService.StartDeliverForChannel(chainID, committer, func() {})
+>>>>>>> release-1.0
 		} else {
 			logger.Debug("This peer is not configured to connect to ordering service for blocks delivery, channel", channelID)
 		}
@@ -474,6 +479,7 @@ func (g *GossipService) onStatusChangeFactory(channelID string, committer blocks
 		if isLeader {
 			yield := func() {
 				g.lock.RLock()
+<<<<<<< HEAD
 				le := g.leaderElection[channelID]
 				g.lock.RUnlock()
 				le.Yield()
@@ -481,6 +487,15 @@ func (g *GossipService) onStatusChangeFactory(channelID string, committer blocks
 			logger.Info("Elected as a leader, starting delivery service for channel", channelID)
 			if err := g.deliveryService[channelID].StartDeliverForChannel(channelID, committer, yield); err != nil {
 				logger.Errorf("Delivery service is not able to start blocks delivery for chain, due to %+v", err)
+=======
+				le := g.leaderElection[chainID]
+				g.lock.RUnlock()
+				le.Yield()
+			}
+			logger.Info("Elected as a leader, starting delivery service for channel", chainID)
+			if err := g.deliveryService.StartDeliverForChannel(chainID, committer, yield); err != nil {
+				logger.Error("Delivery service is not able to start blocks delivery for chain, due to", err)
+>>>>>>> release-1.0
 			}
 		} else {
 			logger.Info("Renounced leadership, stopping delivery service for channel", channelID)

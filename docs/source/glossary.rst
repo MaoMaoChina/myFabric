@@ -246,6 +246,10 @@ peers that are assigned to a specific chaincode application. Policies can be
 curated based on the application and the desired level of resilience against
 misbehavior (deliberate or not) by the endorsing peers. A transaction that is submitted
 must satisfy the endorsement policy before being marked as valid by committing peers.
+<<<<<<< HEAD
+=======
+A distinct endorsement policy for install and instantiate transactions is also required.
+>>>>>>> release-1.0
 
 .. _Follower:
 
@@ -305,6 +309,7 @@ The process of placing a chaincode on a peer's file system.
 Instantiate
 -----------
 
+<<<<<<< HEAD
 The process of starting and initializing a chaincode application on a specific
 channel. After instantiation, peers that have the chaincode installed can accept
 chaincode invocations.
@@ -313,6 +318,11 @@ chaincode invocations.
 lifecycle. For the current procedure used to start a chaincode on a channel with
 the new Fabric chaincode lifecycle introduced as part of Fabric v2.0,
 see Chaincode-definition_.*
+=======
+The process of starting and initializing a chaincode application on a specific channel.
+After instantiation, peers that have the chaincode installed can accept chaincode
+invocations.
+>>>>>>> release-1.0
 
 .. _Invoke:
 
@@ -329,6 +339,7 @@ if the invoke only queried the ledger, the client application typically would no
 submit the read-only transaction, unless there is desire to log the read on the ledger
 for audit purpose. The invoke includes a channel identifier, the chaincode function to
 invoke, and an array of arguments.
+<<<<<<< HEAD
 
 .. _Leader
 
@@ -340,6 +351,8 @@ ingesting new log entries, replicating them to follower ordering nodes, and
 managing when an entry is considered committed. This is not a special **type**
 of orderer. It is only a role that an orderer may have at certain times, and
 then not others, as circumstances determine.
+=======
+>>>>>>> release-1.0
 
 .. _Leading-Peer:
 
@@ -495,6 +508,7 @@ read/write operations to the ledger.  Peers are owned and maintained by members.
 Policy
 ------
 
+<<<<<<< HEAD
 Policies are expressions composed of properties of digital identities, for
 example: ``Org1.Peer OR Org2.Peer``. They are used to restrict access to
 resources on a blockchain network. For instance, they dictate who can read from
@@ -528,6 +542,10 @@ want to keep private from other organizations on that channel. The collection
 definition describes a subset of organizations on a channel entitled to store
 a set of private data, which by extension implies that only these organizations
 can transact with the private data.
+=======
+There are policies for endorsement, validation, chaincode
+management and network/channel management.
+>>>>>>> release-1.0
 
 .. _Proposal:
 
@@ -551,6 +569,7 @@ validation, and commit. Although not typical, the client application can choose 
 submit the read-only transaction for ordering, validation, and commit, for example if the
 client wants auditable proof on the ledger chain that it had knowledge of specific ledger
 state at a certain point in time.
+<<<<<<< HEAD
 
 .. _Quorum:
 
@@ -577,6 +596,8 @@ its decisions are replicated by the followers. Raft ordering services should
 be easier to set up and manage than Kafka-based ordering services, and their
 design allows organizations to contribute nodes to a distributed ordering
 service.
+=======
+>>>>>>> release-1.0
 
 .. _SDK:
 
@@ -610,7 +631,11 @@ and then defined and used on one or more channels.
 State Database
 --------------
 
+<<<<<<< HEAD
 World state data is stored in a state database for efficient reads and queries
+=======
+Current state data is stored in a state database for efficient reads and queries
+>>>>>>> release-1.0
 from chaincode. Supported databases include levelDB and couchDB.
 
 .. _System-Chain:
@@ -635,6 +660,7 @@ channels relative to their aligned and varying business agendas.
 Transaction
 -----------
 
+<<<<<<< HEAD
 .. figure:: ./glossary/glossary.transaction.png
    :scale: 30 %
    :align: right
@@ -677,6 +703,13 @@ state is critical to a transaction flow, since the current state of a key-value
 pair must be known before it can be changed. Peers commit the latest values to
 the ledger world state for each valid transaction included in a processed block.
 
+=======
+Invoke or instantiate results that are submitted for ordering, validation, and commit.
+Invokes are requests to read/write data from the ledger. Instantiate is a request to
+start and initialize a chaincode on a channel. Application clients gather invoke or
+instantiate responses from endorsing peers and package the results and endorsements
+into a transaction that is submitted for ordering, validation, and commit.
+>>>>>>> release-1.0
 
 .. Licensed under Creative Commons Attribution 4.0 International License
    https://creativecommons.org/licenses/by/4.0/

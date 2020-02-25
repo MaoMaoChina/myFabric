@@ -10,9 +10,12 @@ import (
 	"archive/tar"
 	"bufio"
 	"bytes"
+<<<<<<< HEAD
 	"compress/gzip"
 	"context"
 	"encoding/base64"
+=======
+>>>>>>> release-1.0
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -25,14 +28,22 @@ import (
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric/common/flogging"
 	"github.com/hyperledger/fabric/common/util"
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric/core/chaincode/persistence"
 	"github.com/hyperledger/fabric/core/container"
+=======
+	container "github.com/hyperledger/fabric/core/container/api"
+>>>>>>> release-1.0
 	"github.com/hyperledger/fabric/core/container/ccintf"
 	"github.com/pkg/errors"
 )
 
 var (
 	dockerLogger = flogging.MustGetLogger("dockercontroller")
+<<<<<<< HEAD
+=======
+	hostConfig   *docker.HostConfig
+>>>>>>> release-1.0
 	vmRegExp     = regexp.MustCompile("[^a-zA-Z0-9-_.]")
 	imageRegExp  = regexp.MustCompile("^[a-z0-9]+(([._-][a-z0-9]+)+)?$")
 )
@@ -142,8 +153,14 @@ func (vm *DockerVM) createContainer(imageID, containerID string, args, env []str
 	return nil
 }
 
+<<<<<<< HEAD
 func (vm *DockerVM) buildImage(ccid string, reader io.Reader) error {
 	id, err := vm.GetVMNameForDocker(ccid)
+=======
+func (vm *DockerVM) deployImage(client dockerClient, ccid ccintf.CCID,
+	args []string, env []string, reader io.Reader) error {
+	id, err := vm.GetVMName(ccid, formatImageName)
+>>>>>>> release-1.0
 	if err != nil {
 		return err
 	}
@@ -210,6 +227,7 @@ func (vm *DockerVM) Build(ccid string, metadata *persistence.ChaincodePackageMet
 	}, nil
 }
 
+<<<<<<< HEAD
 // In order to support starting chaincode containers built with Fabric v1.4 and earlier,
 // we must check for the precense of the start.sh script for Node.js chaincode before
 // attempting to call it.
@@ -267,6 +285,14 @@ func (vm *DockerVM) GetEnv(ccid string, tlsConfig *ccintf.TLSConfig) []string {
 		envs = append(envs, fmt.Sprintf("CORE_PEER_TLS_ROOTCERT_FILE=%s", TLSClientRootCertFile))
 	} else {
 		envs = append(envs, "CORE_PEER_TLS_ENABLED=false")
+=======
+//Start starts a container using a previously created docker image
+func (vm *DockerVM) Start(ctxt context.Context, ccid ccintf.CCID,
+	args []string, env []string, builder container.BuildSpecFactory, prelaunchFunc container.PrelaunchFunc) error {
+	imageID, err := vm.GetVMName(ccid, formatImageName)
+	if err != nil {
+		return err
+>>>>>>> release-1.0
 	}
 
 	return envs
@@ -279,8 +305,17 @@ func (vm *DockerVM) Start(ccid string, ccType string, peerConnection *ccintf.Pee
 		return err
 	}
 
+<<<<<<< HEAD
 	containerName := vm.GetVMName(ccid)
 	logger := dockerLogger.With("imageName", imageName, "containerName", containerName)
+=======
+	containerID, err := vm.GetVMName(ccid, nil)
+	if err != nil {
+		return err
+	}
+
+	attachStdout := viper.GetBool("vm.docker.attachStdout")
+>>>>>>> release-1.0
 
 	vm.stopInternal(containerName)
 
@@ -353,6 +388,7 @@ func (vm *DockerVM) Start(ccid string, ccType string, peerConnection *ccintf.Pee
 	return nil
 }
 
+<<<<<<< HEAD
 func addFiles(tw *tar.Writer, contents map[string][]byte) error {
 	for name, payload := range contents {
 		err := tw.WriteHeader(&tar.Header{
@@ -363,6 +399,14 @@ func addFiles(tw *tar.Writer, contents map[string][]byte) error {
 		if err != nil {
 			return err
 		}
+=======
+//Stop stops a running chaincode
+func (vm *DockerVM) Stop(ctxt context.Context, ccid ccintf.CCID, timeout uint, dontkill bool, dontremove bool) error {
+	id, err := vm.GetVMName(ccid, nil)
+	if err != nil {
+		return err
+	}
+>>>>>>> release-1.0
 
 		_, err = tw.Write(payload)
 		if err != nil {
@@ -433,11 +477,20 @@ func streamOutput(logger *flogging.FabricLogger, client dockerClient, containerN
 	}()
 }
 
+<<<<<<< HEAD
 // Stop stops a running chaincode
 func (vm *DockerVM) Stop(ccid string) error {
 	id := vm.ccidToContainerID(ccid)
 	return vm.stopInternal(id)
 }
+=======
+//Destroy destroys an image
+func (vm *DockerVM) Destroy(ctxt context.Context, ccid ccintf.CCID, force bool, noprune bool) error {
+	id, err := vm.GetVMName(ccid, formatImageName)
+	if err != nil {
+		return err
+	}
+>>>>>>> release-1.0
 
 // Wait blocks until the container stops and returns the exit code of the container.
 func (vm *DockerVM) Wait(ccid string) (int, error) {
@@ -470,6 +523,7 @@ func (vm *DockerVM) stopInternal(id string) error {
 // GetVMName generates the VM name from peer information. It accepts a format
 // function parameter to allow different formatting based on the desired use of
 // the name.
+<<<<<<< HEAD
 func (vm *DockerVM) GetVMName(ccid string) string {
 	// replace any invalid characters with "-" (either in network id, peer id, or in the
 	// entire name returned by any format function)
@@ -511,4 +565,47 @@ func (vm *DockerVM) preFormatImageName(ccid string) string {
 	}
 
 	return name
+=======
+func (vm *DockerVM) GetVMName(ccid ccintf.CCID, format func(string) (string, error)) (string, error) {
+	name := ccid.GetName()
+
+	// replace any invalid characters with "-"
+	if ccid.NetworkID != "" && ccid.PeerID != "" {
+		name = vmRegExp.ReplaceAllString(
+			fmt.Sprintf("%s-%s-%s", ccid.NetworkID, ccid.PeerID, name), "-")
+	} else if ccid.NetworkID != "" {
+		name = vmRegExp.ReplaceAllString(
+			fmt.Sprintf("%s-%s", ccid.NetworkID, name), "-")
+	} else if ccid.PeerID != "" {
+		name = vmRegExp.ReplaceAllString(
+			fmt.Sprintf("%s-%s", ccid.PeerID, name), "-")
+	}
+
+	if format != nil {
+		formattedName, err := format(name)
+		if err != nil {
+			return formattedName, err
+		}
+		// check to ensure format function didn't add any invalid characters
+		name = vmRegExp.ReplaceAllString(formattedName, "-")
+	}
+	return name, nil
+}
+
+// formatImageName formats the docker image from peer information. This is
+// needed to keep image (repository) names unique in a single host, multi-peer
+// environment (such as a development environment). It computes the hash for the
+// supplied image name and then appends it to the lowercase image name to ensure
+// uniqueness.
+func formatImageName(name string) (string, error) {
+	imageName := strings.ToLower(fmt.Sprintf("%s-%s", name, hex.EncodeToString(util.ComputeSHA256([]byte(name)))))
+
+	// Check that name complies with Docker's repository naming rules
+	if !imageRegExp.MatchString(imageName) {
+		dockerLogger.Errorf("Error constructing Docker VM Name. '%s' breaks Docker's repository naming rules", name)
+		return imageName, fmt.Errorf("Error constructing Docker VM Name. '%s' breaks Docker's repository naming rules", imageName)
+	}
+
+	return imageName, nil
+>>>>>>> release-1.0
 }

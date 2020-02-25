@@ -139,6 +139,7 @@ func (v KafkaVersion) IsAtLeast(other KafkaVersion) bool {
 
 // Effective constants defining the supported kafka versions.
 var (
+<<<<<<< HEAD
 	V0_8_2_0  = newKafkaVersion(0, 8, 2, 0)
 	V0_8_2_1  = newKafkaVersion(0, 8, 2, 1)
 	V0_8_2_2  = newKafkaVersion(0, 8, 2, 2)
@@ -184,6 +185,18 @@ var (
 	}
 	MinVersion = V0_8_2_0
 	MaxVersion = V2_1_0_0
+=======
+	V0_8_2_0   = newKafkaVersion(0, 8, 2, 0)
+	V0_8_2_1   = newKafkaVersion(0, 8, 2, 1)
+	V0_8_2_2   = newKafkaVersion(0, 8, 2, 2)
+	V0_9_0_0   = newKafkaVersion(0, 9, 0, 0)
+	V0_9_0_1   = newKafkaVersion(0, 9, 0, 1)
+	V0_10_0_0  = newKafkaVersion(0, 10, 0, 0)
+	V0_10_0_1  = newKafkaVersion(0, 10, 0, 1)
+	V0_10_1_0  = newKafkaVersion(0, 10, 1, 0)
+	V0_10_2_0  = newKafkaVersion(0, 10, 2, 0)
+	minVersion = V0_8_2_0
+>>>>>>> release-1.0
 )
 
 func ParseKafkaVersion(s string) (KafkaVersion, error) {

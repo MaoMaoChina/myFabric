@@ -101,7 +101,11 @@ func (p *policy) EvaluateIdentities(identities []msp.Identity) error {
 		return fmt.Errorf("No such policy")
 	}
 
+<<<<<<< HEAD
 	ok := p.evaluator(identities, make([]bool, len(identities)))
+=======
+	ok := p.evaluator(deduplicate(signatureSet), make([]bool, len(signatureSet)))
+>>>>>>> release-1.0
 	if !ok {
 		return errors.New("signature set did not satisfy policy")
 	}

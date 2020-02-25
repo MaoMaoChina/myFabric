@@ -9,10 +9,16 @@ package configtx
 import (
 	"strings"
 
+<<<<<<< HEAD
 	"github.com/golang/protobuf/proto"
 	cb "github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric/protoutil"
 	"github.com/pkg/errors"
+=======
+	cb "github.com/hyperledger/fabric/protos/common"
+
+	"github.com/golang/protobuf/proto"
+>>>>>>> release-1.0
 )
 
 const (
@@ -120,11 +126,19 @@ func recurseConfigMap(path string, configMap map[string]comparable) (*cb.ConfigG
 		return nil, errors.Errorf("ConfigGroup not found at group path: %s", groupPath)
 	}
 
+<<<<<<< HEAD
 	newConfigGroup := protoutil.NewConfigGroup()
 	proto.Merge(newConfigGroup, group.ConfigGroup)
 
 	for key := range group.Groups {
 		updatedGroup, err := recurseConfigMap(path+pathSeparator+key, configMap)
+=======
+	newConfigGroup := cb.NewConfigGroup()
+	proto.Merge(newConfigGroup, group.ConfigGroup)
+
+	for key, _ := range group.Groups {
+		updatedGroup, err := recurseConfigMap(path+PathSeparator+key, configMap)
+>>>>>>> release-1.0
 		if err != nil {
 			return nil, err
 		}
@@ -184,6 +198,11 @@ func recurseConfigMap(path string, configMap map[string]comparable) (*cb.ConfigG
 				policy.ModPolicy = hackyFixNewModPolicy
 			}
 		}
+<<<<<<< HEAD
+=======
+		newConfigGroup.Policies[key] = proto.Clone(policy.ConfigPolicy).(*cb.ConfigPolicy)
+		logger.Debugf("Setting policy for key %s to %+v", key, group.Policies[key])
+>>>>>>> release-1.0
 	}
 
 	return newConfigGroup, nil

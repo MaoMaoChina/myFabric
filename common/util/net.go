@@ -1,14 +1,21 @@
 /*
 Copyright IBM Corp. All Rights Reserved.
+<<<<<<< HEAD
 
+=======
+>>>>>>> release-1.0
 SPDX-License-Identifier: Apache-2.0
 */
 
 package util
 
 import (
+<<<<<<< HEAD
 	"context"
 
+=======
+	"golang.org/x/net/context"
+>>>>>>> release-1.0
 	"google.golang.org/grpc/peer"
 )
 

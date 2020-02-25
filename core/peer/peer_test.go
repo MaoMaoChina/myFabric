@@ -41,10 +41,51 @@ import (
 	"google.golang.org/grpc"
 )
 
+<<<<<<< HEAD
 func TestMain(m *testing.M) {
 	msptesttools.LoadMSPSetupForTesting()
 	rc := m.Run()
 	os.Exit(rc)
+=======
+type mockDeliveryClient struct {
+}
+
+// StartDeliverForChannel dynamically starts delivery of new blocks from ordering service
+// to channel peers.
+func (ds *mockDeliveryClient) StartDeliverForChannel(chainID string, ledgerInfo blocksprovider.LedgerInfo, f func()) error {
+	return nil
+}
+
+// StopDeliverForChannel dynamically stops delivery of new blocks from ordering service
+// to channel peers.
+func (ds *mockDeliveryClient) StopDeliverForChannel(chainID string) error {
+	return nil
+}
+
+// Stop terminates delivery service and closes the connection
+func (*mockDeliveryClient) Stop() {
+
+}
+
+type mockDeliveryClientFactory struct {
+}
+
+func (*mockDeliveryClientFactory) Service(g service.GossipService, endpoints []string, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
+	return &mockDeliveryClient{}, nil
+}
+
+func TestCreatePeerServer(t *testing.T) {
+
+	server, err := CreatePeerServer(":4050", comm.SecureServerConfig{})
+	assert.NoError(t, err, "CreatePeerServer returned unexpected error")
+	assert.Equal(t, "[::]:4050", server.Address(),
+		"CreatePeerServer returned the wrong address")
+	server.Stop()
+
+	_, err = CreatePeerServer("", comm.SecureServerConfig{})
+	assert.Error(t, err, "expected CreatePeerServer to return error with missing address")
+
+>>>>>>> release-1.0
 }
 
 func NewTestPeer(t *testing.T) (*Peer, func()) {

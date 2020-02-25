@@ -2,6 +2,7 @@ package sarama
 
 import (
 	"encoding/binary"
+<<<<<<< HEAD
 	"fmt"
 	"hash/crc32"
 )
@@ -11,6 +12,9 @@ type crcPolynomial int8
 const (
 	crcIEEE crcPolynomial = iota
 	crcCastagnoli
+=======
+	"hash/crc32"
+>>>>>>> release-1.0
 )
 
 var castagnoliTable = crc32.MakeTable(crc32.Castagnoli)

@@ -56,6 +56,7 @@ if [ -n "$OUTPUT" ]; then
     exit 1
 fi
 
+<<<<<<< HEAD
 echo "Checking with go vet"
 PRINTFUNCS="Print,Printf,Info,Infof,Warning,Warningf,Error,Errorf,Critical,Criticalf,Sprint,Sprintf,Log,Logf,Panic,Panicf,Fatal,Fatalf,Notice,Noticef,Wrap,Wrapf,WithMessage"
 OUTPUT="$(go vet -all -printfuncs "$PRINTFUNCS" ./...)"
@@ -64,3 +65,10 @@ if [ -n "$OUTPUT" ]; then
     echo "$OUTPUT"
     exit 1
 fi
+=======
+for i in "${arr[@]}"
+do
+    echo "Checking $i"
+    go vet $i/...
+done
+>>>>>>> release-1.0

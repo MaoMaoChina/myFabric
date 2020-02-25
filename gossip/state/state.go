@@ -8,6 +8,11 @@ package state
 
 import (
 	"bytes"
+<<<<<<< HEAD
+=======
+	"errors"
+	"fmt"
+>>>>>>> release-1.0
 	"sync"
 	"sync/atomic"
 	"time"
@@ -26,8 +31,15 @@ import (
 	"github.com/hyperledger/fabric/gossip/metrics"
 	"github.com/hyperledger/fabric/gossip/protoext"
 	"github.com/hyperledger/fabric/gossip/util"
+<<<<<<< HEAD
 	"github.com/hyperledger/fabric/protoutil"
 	"github.com/pkg/errors"
+=======
+	"github.com/hyperledger/fabric/protos/common"
+	proto "github.com/hyperledger/fabric/protos/gossip"
+	"github.com/op/go-logging"
+	"github.com/spf13/viper"
+>>>>>>> release-1.0
 )
 
 // GossipStateProvider is the interface to acquire sequences of the ledger blocks
@@ -522,9 +534,15 @@ func (s *GossipStateProviderImpl) handleStateResponse(msg protoext.ReceivedMessa
 			max = payload.SeqNum
 		}
 
+<<<<<<< HEAD
 		err = s.addPayload(payload, blocking)
 		if err != nil {
 			logger.Warningf("Block [%d] received from block transfer wasn't added to payload buffer: %v", payload.SeqNum, err)
+=======
+		err := s.addPayload(payload, blocking)
+		if err != nil {
+			logger.Warningf("Payload with sequence number %d wasn't added to payload buffer: %v", payload.SeqNum, err)
+>>>>>>> release-1.0
 		}
 	}
 	return max, nil
@@ -543,6 +561,29 @@ func (s *GossipStateProviderImpl) Stop() {
 	})
 }
 
+<<<<<<< HEAD
+=======
+// New message notification/handler
+func (s *GossipStateProviderImpl) queueNewMessage(msg *proto.GossipMessage) {
+	if !bytes.Equal(msg.Channel, []byte(s.chainID)) {
+		logger.Warning("Received enqueue for channel",
+			string(msg.Channel), "while expecting channel", s.chainID, "ignoring enqueue")
+		return
+	}
+
+	dataMsg := msg.GetDataMsg()
+	if dataMsg != nil {
+		if err := s.addPayload(dataMsg.GetPayload(), nonBlocking); err != nil {
+			logger.Warning("Failed adding payload:", err)
+			return
+		}
+		logger.Debugf("Received new payload with sequence number = [%d]", dataMsg.Payload.SeqNum)
+	} else {
+		logger.Debug("Gossip message received is not of data message type, usually this should not happen.")
+	}
+}
+
+>>>>>>> release-1.0
 func (s *GossipStateProviderImpl) deliverPayloads() {
 	for {
 		select {
@@ -561,6 +602,7 @@ func (s *GossipStateProviderImpl) deliverPayloads() {
 						payload.SeqNum, rawBlock.Header, rawBlock.Data)
 					continue
 				}
+<<<<<<< HEAD
 				logger.Debugf("[%s] Transferring block [%d] with %d transaction(s) to the ledger", s.chainID, payload.SeqNum, len(rawBlock.Data.Data))
 
 				// Read all private data into slice
@@ -578,6 +620,11 @@ func (s *GossipStateProviderImpl) deliverPayloads() {
 						return
 					}
 					logger.Panicf("Cannot commit block to the ledger due to %+v", errors.WithStack(err))
+=======
+				logger.Debug("New block with claimed sequence number ", payload.SeqNum, " transactions num ", len(rawBlock.Data.Data))
+				if err := s.commitBlock(rawBlock); err != nil {
+					logger.Panicf("Cannot commit block to the ledger due to %s", err)
+>>>>>>> release-1.0
 				}
 			}
 		case <-s.stopCh:
@@ -777,9 +824,45 @@ func (s *GossipStateProviderImpl) addPayload(payload *proto.Payload, blockingMod
 	return nil
 }
 
+<<<<<<< HEAD
 func (s *GossipStateProviderImpl) commitBlock(block *common.Block, pvtData util.PvtDataCollections) error {
 
 	t1 := time.Now()
+=======
+// AddPayload add new payload into state.
+func (s *GossipStateProviderImpl) AddPayload(payload *proto.Payload) error {
+	blockingMode := blocking
+	if viper.GetBool("peer.gossip.nonBlockingCommitMode") {
+		blockingMode = false
+	}
+	return s.addPayload(payload, blockingMode)
+}
+
+// addPayload add new payload into state. It may (or may not) block according to the
+// given parameter. If it gets a block while in blocking mode - it would wait until
+// the block is sent into the payloads buffer.
+// Else - it may drop the block, if the payload buffer is too full.
+func (s *GossipStateProviderImpl) addPayload(payload *proto.Payload, blockingMode bool) error {
+	if payload == nil {
+		return errors.New("Given payload is nil")
+	}
+	logger.Debug("Adding new payload into the buffer, seqNum = ", payload.SeqNum)
+	height, err := s.committer.LedgerHeight()
+	if err != nil {
+		return fmt.Errorf("Failed obtaining ledger height: %v", err)
+	}
+
+	if !blockingMode && payload.SeqNum-height >= defMaxBlockDistance {
+		return fmt.Errorf("Ledger height is at %d, cannot enqueue block with sequence of %d", height, payload.SeqNum)
+	}
+
+	for blockingMode && s.payloads.Size() > defMaxBlockDistance*2 {
+		time.Sleep(enqueueRetryInterval)
+	}
+
+	return s.payloads.Push(payload)
+}
+>>>>>>> release-1.0
 
 	// Commit block with available private transactions
 	if err := s.ledger.StoreBlock(block, pvtData); err != nil {

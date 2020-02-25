@@ -9,10 +9,20 @@ package configtx
 import (
 	"testing"
 
+<<<<<<< HEAD
 	cb "github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric/protoutil"
+=======
+	cb "github.com/hyperledger/fabric/protos/common"
+
+	logging "github.com/op/go-logging"
+>>>>>>> release-1.0
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestBadKey(t *testing.T) {
 	assert.Error(t, addToMap(comparable{key: "[Label]", path: []string{}}, make(map[string]comparable)),
@@ -20,6 +30,7 @@ func TestBadKey(t *testing.T) {
 }
 
 func TestConfigMapMultiGroup(t *testing.T) {
+<<<<<<< HEAD
 	config := protoutil.NewConfigGroup()
 	config.Groups["0"] = protoutil.NewConfigGroup()
 	config.Groups["0"].Groups["1"] = protoutil.NewConfigGroup()
@@ -32,6 +43,20 @@ func TestConfigMapMultiGroup(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"Channel", "0", "1", "2.1"}, confMap["[Value]  /Channel/0/1/2.1/Value"].path)
 	assert.Equal(t, []string{"Channel", "0", "1", "2.2"}, confMap["[Value]  /Channel/0/1/2.2/Value"].path)
+=======
+	config := cb.NewConfigGroup()
+	config.Groups["0"] = cb.NewConfigGroup()
+	config.Groups["0"].Groups["1"] = cb.NewConfigGroup()
+	config.Groups["0"].Groups["1"].Groups["2.1"] = cb.NewConfigGroup()
+	config.Groups["0"].Groups["1"].Groups["2.1"].Values["Value"] = &cb.ConfigValue{}
+	config.Groups["0"].Groups["1"].Groups["2.2"] = cb.NewConfigGroup()
+	config.Groups["0"].Groups["1"].Groups["2.2"].Values["Value"] = &cb.ConfigValue{}
+
+	confMap, err := MapConfig(config)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"Channel", "0", "1", "2.1"}, confMap["[Values] /Channel/0/1/2.1/Value"].path)
+	assert.Equal(t, []string{"Channel", "0", "1", "2.2"}, confMap["[Values] /Channel/0/1/2.2/Value"].path)
+>>>>>>> release-1.0
 }
 
 func TestConfigMap(t *testing.T) {
@@ -83,6 +108,7 @@ func TestMapConfigBack(t *testing.T) {
 
 	newConfig.Values["Value"] = &cb.ConfigValue{}
 	assert.NotEqual(t, config, newConfig, "Mutating the new config should not mutate the existing config")
+<<<<<<< HEAD
 }
 
 func TestHackInmapConfigBack(t *testing.T) {
@@ -122,4 +148,6 @@ func TestHackInmapConfigBack(t *testing.T) {
 	}
 
 	checkModPolicy(newConfig)
+=======
+>>>>>>> release-1.0
 }

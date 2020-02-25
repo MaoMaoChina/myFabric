@@ -13,6 +13,10 @@ import (
 	"github.com/hyperledger/fabric/gossip/api"
 	"github.com/hyperledger/fabric/gossip/common"
 	"github.com/hyperledger/fabric/gossip/discovery"
+<<<<<<< HEAD
+=======
+	proto "github.com/hyperledger/fabric/protos/gossip"
+>>>>>>> release-1.0
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -25,6 +29,7 @@ func TestGossipMock(t *testing.T) {
 		return c
 	}
 	g.On("Accept", mock.Anything, false).Return(mkChan(), nil)
+	g.On("PeersOfChannel", mock.Anything).Return([]discovery.NetworkMember{})
 	a, b := g.Accept(func(o interface{}) bool {
 		return true
 	}, false)

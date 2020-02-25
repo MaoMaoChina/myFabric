@@ -53,8 +53,15 @@ import (
 
 //go:generate counterfeiter -o mocks/acl_provider.go --fake-name ACLProvider . aclProvider
 
+<<<<<<< HEAD
 type aclProvider interface {
 	aclmgmt.ACLProvider
+=======
+// StartDeliverForChannel dynamically starts delivery of new blocks from ordering service
+// to channel peers.
+func (ds *mockDeliveryClient) StartDeliverForChannel(chainID string, ledgerInfo blocksprovider.LedgerInfo, f func()) error {
+	return nil
+>>>>>>> release-1.0
 }
 
 //go:generate counterfeiter -o mocks/chaincode_stub.go --fake-name ChaincodeStub . chaincodeStub
