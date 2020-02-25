@@ -53,8 +53,8 @@ func (bs deliverSupport) GetChain(chainID string) (deliver.Support, bool) {
 }
 
 type server struct {
-	bh broadcast.Handler
-	dh deliver.Handler
+	bh broadcast.Handler // 交易收集
+	dh deliver.Handler   // 区块广播
 }
 
 // NewServer creates an ab.AtomicBroadcastServer based on the broadcast target and ledger Reader

@@ -59,23 +59,33 @@ var (
 )
 
 func main() {
-
+        // 打印当前orderer节点的版本信息 
 	kingpin.Version("0.0.1")
 	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
 
 	// "start" command
 	case start.FullCommand():
 		logger.Infof("Starting %s", metadata.GetVersionInfo())
-		conf := config.Load()
+		// 载入配置信息,可在github上查看viper,配置文件在simpleconfig文件下
+                conf := config.Load()
+                // 初始化日志级别  
 		initializeLoggingLevel(conf)
+                // 初始化profile(go语言内置,观察程序运行状态)
 		initializeProfilingService(conf)
+		// 初始化grpc服务端
 		grpcServer := initializeGrpcServer(conf)
+		// 载入msp证书
 		initializeLocalMsp(conf)
+		// msp证书用于签名者实例化
 		signer := localmsp.NewSigner()
+		//* 初始化多链manager
 		manager := initializeMultiChainManager(conf, signer)
+		//* 实例化服务实现
 		server := NewServer(manager, signer)
+		// 绑定服务器 + 服务实现
 		ab.RegisterAtomicBroadcastServer(grpcServer.Server(), server)
 		logger.Info("Beginning to serve requests")
+		// 启动服务
 		grpcServer.Start()
 	// "version" command
 	case version.FullCommand():
@@ -205,17 +215,20 @@ func initializeLocalMsp(conf *config.TopLevel) {
 }
 
 func initializeMultiChainManager(conf *config.TopLevel, signer crypto.LocalSigner) multichain.Manager {
+	// 创建账本工程, 存储Orderer产生的临时区块  By Three types: File Json Ram 
 	lf, _ := createLedgerFactory(conf)
 	// Are we bootstrapping?
+	// 是否有链的存在，即是否产生了创始区块(个人理解)
 	if len(lf.ChainIDs()) == 0 {
+	// 启动引导
 		initializeBootstrapChannel(conf, lf)
 	} else {
 		logger.Info("Not bootstrapping because of existing chains")
 	}
-
+	// 实例化共识机制
 	consenters := make(map[string]multichain.Consenter)
 	consenters["solo"] = solo.New()
 	consenters["kafka"] = kafka.New(conf.Kafka.TLS, conf.Kafka.Retry, conf.Kafka.Version)
-
+	// 实例化Manager
 	return multichain.NewManagerImpl(lf, consenters, signer)
 }

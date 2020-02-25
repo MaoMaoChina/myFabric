@@ -31,16 +31,21 @@ const (
 // Manager coordinates the creation and access of chains
 type Manager interface {
 	// GetChain retrieves the chain support for a chain (and whether it exists)
+	// 获取链对象
 	GetChain(chainID string) (ChainSupport, bool)
 
 	// SystemChannelID returns the channel ID for the system channel
+	// 获取系统链,系统链用于引导其他链的生成
 	SystemChannelID() string
 
 	// NewChannelConfig returns a bare bones configuration ready for channel
 	// creation request to be applied on top of it
+	// 链的配置(New/Update)
 	NewChannelConfig(envConfigUpdate *cb.Envelope) (configtxapi.Manager, error)
 }
 
+// 配置资源
+// 每一个链都有自己的配置,配置被包裹在配置资源中
 type configResources struct {
 	configtxapi.Manager
 }
@@ -52,28 +57,29 @@ func (cr *configResources) SharedConfig() config.Orderer {
 	}
 	return oc
 }
-
+// 账本资源类 (配置资源&账本的读写对象)
 type ledgerResources struct {
 	*configResources
 	ledger ledger.ReadWriter
 }
-
+// manager的实现类
 type multiLedger struct {
-	chains          map[string]*chainSupport
-	consenters      map[string]Consenter
-	ledgerFactory   ledger.Factory
-	signer          crypto.LocalSigner
-	systemChannelID string
-	systemChannel   *chainSupport
+	chains          map[string]*chainSupport  // 多链对象
+	lock		sync.Mutex		  // 加锁*******************************************************
+	consenters      map[string]Consenter      // 共识机制
+	ledgerFactory   ledger.Factory            // 账本读写工厂
+	signer          crypto.LocalSigner        // 签名
+	systemChannelID string		          // 系统链名
+	systemChannel   *chainSupport		  // 系统链对象
 }
-
+// 获取链最新配置交易
 func getConfigTx(reader ledger.Reader) *cb.Envelope {
-	lastBlock := ledger.GetBlock(reader, reader.Height()-1)
+	lastBlock := ledger.GetBlock(reader, reader.Height()-1) // 获取链最新生成的块
 	index, err := utils.GetLastConfigIndexFromBlock(lastBlock)
 	if err != nil {
 		logger.Panicf("Chain did not have appropriately encoded last config in its latest block: %s", err)
 	}
-	configBlock := ledger.GetBlock(reader, index)
+	configBlock := ledger.GetBlock(reader, index)// 通过最新生成的块来获取配置块
 	if configBlock == nil {
 		logger.Panicf("Config block does not exist")
 	}
@@ -89,21 +95,25 @@ func NewManagerImpl(ledgerFactory ledger.Factory, consenters map[string]Consente
 		consenters:    consenters,
 		signer:        signer,
 	}
-
+	// 读取本地存储的链的ID
 	existingChains := ledgerFactory.ChainIDs()
 	for _, chainID := range existingChains {
+		// 实例化账本读对象 rl = read ledger
 		rl, err := ledgerFactory.GetOrCreate(chainID)
 		if err != nil {
 			logger.Panicf("Ledger factory reported chainID %s but could not retrieve it: %s", chainID, err)
 		}
+		// 获取链最新配置交易
 		configTx := getConfigTx(rl)
 		if configTx == nil {
 			logger.Panic("Programming error, configTx should never be nil here")
 		}
+		// 绑定配置与读写对象
 		ledgerResources := ml.newLedgerResources(configTx)
 		chainID := ledgerResources.ChainID()
-
+		// 检查该链是否为系统链,系统链有联盟配置,联盟配置有创建其它链的权限
 		if _, ok := ledgerResources.ConsortiumsConfig(); ok {
+			// 检查系统链是否已经存在
 			if ml.systemChannelID != "" {
 				logger.Panicf("There appear to be two system chains %s and %s", ml.systemChannelID, chainID)
 			}
@@ -112,23 +122,27 @@ func NewManagerImpl(ledgerFactory ledger.Factory, consenters map[string]Consente
 				consenters,
 				signer)
 			logger.Infof("Starting with system channel %s and orderer type %s", chainID, chain.SharedConfig().ConsensusType())
+			ml.lock.Lock()
 			ml.chains[chainID] = chain
+			ml.lock.Unlock()
 			ml.systemChannelID = chainID
 			ml.systemChannel = chain
 			// We delay starting this chain, as it might try to copy and replace the chains map via newChain before the map is fully built
-			defer chain.start()
+			defer chain.start() // 延迟启动
 		} else {
 			logger.Debugf("Starting chain: %s", chainID)
 			chain := newChainSupport(createStandardFilters(ledgerResources),
 				ledgerResources,
 				consenters,
 				signer)
+			ml.lock.Lock()
 			ml.chains[chainID] = chain
-			chain.start()
+			ml.lock.Unlock()
+			chain.start() // 启动
 		}
-
+	//
 	}
-
+	// 检查是否有系统链存在,不存在则报错 
 	if ml.systemChannelID == "" {
 		logger.Panicf("No system chain found.  If bootstrapping, does your system channel contain a consortiums group definition?")
 	}
@@ -142,10 +156,13 @@ func (ml *multiLedger) SystemChannelID() string {
 
 // GetChain retrieves the chain support for a chain (and whether it exists)
 func (ml *multiLedger) GetChain(chainID string) (ChainSupport, bool) {
+	ml.lock.Lock()
+	defer ml.lock.Unlock()
 	cs, ok := ml.chains[chainID]
 	return cs, ok
 }
 
+// 实例化账本资源对象
 func (ml *multiLedger) newLedgerResources(configTx *cb.Envelope) *ledgerResources {
 	initializer := configtx.NewInitializer()
 	configManager, err := configtx.NewManagerImpl(configTx, initializer, nil)
@@ -166,15 +183,17 @@ func (ml *multiLedger) newLedgerResources(configTx *cb.Envelope) *ledgerResource
 	}
 }
 
+// 新建一条链
 func (ml *multiLedger) newChain(configtx *cb.Envelope) {
 	ledgerResources := ml.newLedgerResources(configtx)
-	ledgerResources.ledger.Append(ledger.CreateNextBlock(ledgerResources.ledger, []*cb.Envelope{configtx}))
+	ledgerResources.ledger.Append(ledger.CreateNextBlock(ledgerResources.ledger, []*cb.Envelope{configtx}))  // 将创世区块加在链上
 
 	// Copy the map to allow concurrent reads from broadcast/deliver while the new chainSupport is
-	newChains := make(map[string]*chainSupport)
-	for key, value := range ml.chains {
-		newChains[key] = value
-	}
+	// 使用Mutex加锁后就不再需要了
+	//newChains := make(map[string]*chainSupport)
+	//for key, value := range ml.chains {
+	//	newChains[key] = value
+	//}
 
 	cs := newChainSupport(createStandardFilters(ledgerResources), ledgerResources, ml.consenters, ml.signer)
 	chainID := ledgerResources.ChainID()
@@ -184,13 +203,17 @@ func (ml *multiLedger) newChain(configtx *cb.Envelope) {
 	newChains[string(chainID)] = cs
 	cs.start()
 
-	ml.chains = newChains
+	// ml.chains = newChains
+	ml.lock.Lock()
+	ml.chains[chainID] = cs
+	ml.lock.Unlock()
 }
 
 func (ml *multiLedger) channelsCount() int {
 	return len(ml.chains)
 }
 
+// 生成新链的配置
 func (ml *multiLedger) NewChannelConfig(envConfigUpdate *cb.Envelope) (configtxapi.Manager, error) {
 	configUpdatePayload, err := utils.UnmarshalPayload(envConfigUpdate.Payload)
 	if err != nil {
@@ -314,6 +337,6 @@ func (ml *multiLedger) NewChannelConfig(envConfigUpdate *cb.Envelope) (configtxa
 			pm.SuppressSanityLogMessages = false
 		}()
 	}
-
+	// 配置manager实例化
 	return configtx.NewManagerImpl(templateConfig, initializer, nil)
 }

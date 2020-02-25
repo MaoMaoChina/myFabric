@@ -78,6 +78,7 @@ type Consortium interface {
 // Orderer stores the common shared orderer config
 type Orderer interface {
 	// ConsensusType returns the configured consensus type
+	// 共识协议 Solo/Kafka
 	ConsensusType() string
 
 	// BatchSize returns the maximum number of messages to include in a block

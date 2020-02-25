@@ -107,10 +107,10 @@ type HeaderType int32
 
 const (
 	HeaderType_MESSAGE              HeaderType = 0
-	HeaderType_CONFIG               HeaderType = 1
+	HeaderType_CONFIG               HeaderType = 1	// 最新的配置信息所在区块
 	HeaderType_CONFIG_UPDATE        HeaderType = 2
 	HeaderType_ENDORSER_TRANSACTION HeaderType = 3
-	HeaderType_ORDERER_TRANSACTION  HeaderType = 4
+	HeaderType_ORDERER_TRANSACTION  HeaderType = 4	// orderer节点相关的配置
 	HeaderType_DELIVER_SEEK_INFO    HeaderType = 5
 	HeaderType_CHAINCODE_PACKAGE    HeaderType = 6
 )
